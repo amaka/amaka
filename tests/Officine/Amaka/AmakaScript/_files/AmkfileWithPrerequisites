@@ -1,0 +1,6 @@
+<?php
+
+return array(
+    $this->task(':test'),
+    $this->task(':build')->dependsOn(':test'),
+);

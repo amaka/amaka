@@ -1,0 +1,33 @@
+{
+    "name": "officine-software/amaka",
+    "license": "BSD-3-Clause",
+    "version": "v0.1.0-beta",
+    "homepage": "http://github.com/trashofmasters/amaka",
+    "description": "Amaka the PHP Build Automator",
+    "keywords": ["phing alternatives", "build automation", "amaka"],
+    "authors": [
+        {
+            "role": "Developer",
+            "name": "Andrea Turso",
+            "email": "trashofmasters@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.3",
+        "react/react": "dev-master",
+        "react/promise": "dev-master",
+        "phpunit/phpunit": "3.7.*",
+        "zendframework/zend-eventmanager": "2.0.*",
+        "zendframework/zend-json": "2.0.*",
+        "zendframework/zend-stdlib": "2.0.*",
+        "zendframework/zend-loader": "2.0.*",
+        "zendframework/zend-config": "2.0.*",
+        "zendframework/zend-console": "2.0.*"
+    },
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "http://packages.zendframework.com/"
+        }
+    ]
+}

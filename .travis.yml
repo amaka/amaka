@@ -1,0 +1,18 @@
+language: php
+php:
+  - "5.3"
+  - "5.4"
+  - "5.5"
+
+branches:
+  only:
+    - develop
+
+env:
+  - LIB_PATH=vendor/
+
+before_script:
+  - curl -s https://getcomposer.org/installer | php
+    php composer.phar
+
+script: php bin/amaka test

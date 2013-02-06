@@ -1,0 +1,48 @@
+#!/usr/bin/env php
+<?php
+/**
+ * OfficineSoftware OIS
+ *
+ * @license   http://www.opensource.org/licenses/bsd-license.php
+ * @copyright Copyright (c) 2012 Andrea Turso
+ * @author    Andrea Turso <andrea.turso@gmail.com>
+ */
+require_once __DIR__ . '/../src/bootstrap.php';
+
+use Zend\Console\Getopt;
+use Officine\Amaka\Amaka;
+use Officine\Amaka\FailedBuildException;
+
+$getopt = new Getopt(array(
+    'f=s'    => 'Load the specified buildfile',
+    'list|l' => 'Prints the list of tasks in the buildfile',
+));
+
+$opts = $getopt;
+$args = $getopt->getRemainingArgs();
+
+try {
+    $amakaScript = 'Amkfile';
+    if (isset($opts->f)) {
+        $amakaScript = $opts->f;
+    }
+
+    $amaka = new Amaka();
+    $amaka->loadBuildfile($amakaScript);
+
+    if (isset($opts->l)) {
+        foreach ($amaka->getBuildfile() as $task) {
+            echo $task->getName() . PHP_EOL;
+        }
+    }
+
+    $message = function($passOrFail, $time) {
+        return "BUILD {$passOrFail}" . PHP_EOL
+             . "Duration: " . sprintf("%.4fs ", $time) . PHP_EOL;
+    };
+
+    $amaka->run(array_pop($args));
+} catch(Exception $e) {
+    echo "Fatal (" . get_class($e) . "): {$e->getMessage()}\n";
+    exit(1);
+}
