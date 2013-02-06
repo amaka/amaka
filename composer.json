@@ -22,7 +22,8 @@
         "zendframework/zend-stdlib": "2.0.*",
         "zendframework/zend-loader": "2.0.*",
         "zendframework/zend-config": "2.0.*",
-        "zendframework/zend-console": "2.0.*"
+        "zendframework/zend-console": "2.0.*",
+        "behat/behat": "2.4.*@stable"
     },
     "repositories": [
         {
