@@ -13,6 +13,6 @@ env:
 
 before_script:
   - curl -s https://getcomposer.org/installer | php
-    php composer.phar
+  - php composer.phar update
 
 script: php bin/amaka test
