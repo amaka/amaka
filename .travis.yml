@@ -2,7 +2,6 @@ language: php
 php:
   - "5.3"
   - "5.4"
-  - "5.5"
 
 branches:
   only:
@@ -13,6 +12,6 @@ env:
 
 before_script:
   - curl -s https://getcomposer.org/installer | php
-  - php composer.phar install
+  - php composer.phar update
 
 script: php bin/amaka test
