@@ -1,125 +1,17 @@
 <?php
 
+use Behat\Behat\Context\BehatContext;
+
 require_once __DIR__ . '/../../src/bootstrap.php';
-require_once 'PHPUnit/Framework/Assert/Functions.php';
-
-use Behat\Behat\Context\ClosuredContextInterface,
-    Behat\Behat\Context\TranslatedContextInterface,
-    Behat\Behat\Context\BehatContext,
-    Behat\Behat\Exception\PendingException;
-
-use Behat\Gherkin\Node\PyStringNode,
-    Behat\Gherkin\Node\TableNode;
-
-use Officine\Amaka\Plugin\TokenReplacement;
 
 /**
- * Features context.
+ *
  */
 class FeatureContext extends BehatContext
 {
-    private $plugin;
-    private $theFile;
-    private $theDestinationFile;
-
     public function __construct()
     {
-        $this->plugin = new TokenReplacement();
-    }
-
-    /**
-     * @Given /^an empty file$/
-     */
-    public function anEmptyFile()
-    {
-        $this->theFile = tempnam(null, null);
-    }
-
-    /**
-     * @When /^I run the token replacement plugin$/
-     */
-    public function iRunTheTokenReplacementPlugin()
-    {
-        $this->plugin->replaceInto($this->theFile);
-    }
-
-    /**
-     * @Then /^the file should still be empty$/
-     */
-    public function theFileShouldStillBeEmpty()
-    {
-        assertEmpty(file_get_contents($this->theFile));
-    }
-
-    /**
-     * @Given /^a file with the following content$/
-     */
-    public function aFileWith(PyStringNode $content)
-    {
-        $this->theFile = tempnam(null, null);
-        file_put_contents($this->theFile, $content);
-    }
-
-    /**
-     * @When /^I bind the value "([^"]*)" to the token "([^"]*)"$/
-     */
-    public function iBindTheValueToTheToken($value, $token)
-    {
-        $this->plugin->bind($token, $value);
-        assertSame($value, $this->plugin->interpret($token));
-    }
-
-    /**
-     * @Then /^the file should contain$/
-     */
-    public function theFileShouldContain(PyStringNode $string)
-    {
-        assertEquals((string) $string, file_get_contents($this->theFile));
-    }
-
-    /**
-     * @Given /^the file should not contain the original token "([^"]*)"$/
-     */
-    public function theFileShouldNotContainTheOriginalToken($token)
-    {
-        $content = file_get_contents($this->theFile);
-        assertNotContains($token, $content);
-    }
-
-    /**
-     * @When /^the token replacement plugin is run$/
-     */
-    public function theTokenReplacementPluginIsRun()
-    {
-        $this->theDestinationFile = tempnam(null, null);
-        $this->plugin->replaceFromInto($this->theFile, $this->theDestinationFile);
-    }
-
-    /**
-     * @Then /^the target file should be created$/
-     */
-    public function theTargetFileShouldBeCreated()
-    {
-        assertTrue(file_exists($this->theDestinationFile));
-    }
-
-    /**
-     * @Given /^the destination file should contain the replaced tokens$/
-     */
-    public function theDestinationFileShouldContainTheReplacedTokens($content)
-    {
-        assertEquals((string) $content, file_get_contents($this->theDestinationFile));
-    }
-
-    /**
-     * @AfterScenario
-     */
-    public function cleanup()
-    {
-        foreach (array($this->theFile, $this->theDestinationFile) as $file) {
-            if (file_exists($file)) {
-                unlink($file);
-            }
-        }
+        $this->useContext('token_replacement', new TokenReplacementContext());
+        //$this->useContext('paths_module', new PathsModuleContext());
     }
 }

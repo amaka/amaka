@@ -8,6 +8,7 @@
  */
 namespace Officine\Amaka;
 
+use Zend\Validator\Alpha;
 use Zend\Config\Config;
 use Zend\Stdlib\ArrayUtils;
 
@@ -35,15 +36,34 @@ class Context
     /**
      *
      *
-     * @param string $directory
+     * @param string $path
      */
-    public function setWorkingDirectory($directory)
+    public function setWorkingDirectory($path)
     {
-        if ('/' != $directory[0]) {
+        if (! $this->isUnixAbsolutePath($path)
+            || ! $this->isWindowsAbsolutePath($path)) {
             throw new \InvalidArgumentException('Working directory must be an absolute path');
         }
-        $this->workingDirectory = $directory;
+        $this->workingDirectory = $path;
         return $this;
+    }
+
+    public function isUnixAbsolutePath($path)
+    {
+        return '/' == substr($path, 0, 1);
+    }
+
+    public function isWindowsAbsolutePath($path)
+    {
+        if ('\\' == substr($path, 0, 2)) {
+            return true;
+        }
+
+        $validator = new Alpha();
+        if ($validator(substr($path, 0, 1)) && ':' == substr($path, 1, 1)) {
+            return true;
+        }
+        return false;
     }
 
     /**

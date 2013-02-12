@@ -15,6 +15,12 @@ class ContextTest extends PHPUnit_Framework_TestCase
         $this->context = new Context();
     }
 
+    public function testWorkingDirectoryBugOnWindows()
+    {
+        $context = new Context();
+        $context->setWorkingDirectory('C:\\Wamp\\www\\test');
+    }
+
     /**
      * @test
      */
