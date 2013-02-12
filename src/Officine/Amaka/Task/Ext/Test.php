@@ -20,15 +20,28 @@ class Test extends Task
     private $phpunitConfig = 'phpunit.xml';
     private $phpunitCommand = 'vendor/bin/phpunit';
 
+    public function __construct($name)
+    {
+        $this->phpunitCommand = ROOT_DIR . '/vendor/bin/phpunit';
+        parent::__construct($name);
+    }
+
     public function setTestDirectory($directory)
     {
         $this->testDirectory = $directory;
         return $this;
     }
 
+    public function setNoConfigurationFile()
+    {
+        $this->phpunitConfig = false;
+        return $this;
+    }
+
     public function setConfigurationFile($configuration)
     {
         $this->phpunitConfig = $configuration;
+        return $this;
     }
 
     public function getPHPUnitCommand()
@@ -39,7 +52,9 @@ class Test extends Task
 
         $options = "--stderr --stop-on-error --log-json {$outputFile}";
 
-        return "{$this->phpunitCommand} {$options} -c {$configFile} {$testDir}";
+        $useConfig = $configFile ? "-c {$configFile}" : "";
+
+        return "{$this->phpunitCommand} {$options} {$useConfig} {$testDir}";
     }
 
     /**
@@ -53,6 +68,14 @@ class Test extends Task
 
         $this->outputFile = tempnam(null, 'amk.test.json');
 
+        if (! file_exists($this->testDirectory)) {
+            throw new \RuntimeException("No test directory specified, or directory not found.");
+        }
+
+        if (false !== $this->phpunitConfig && ! file_exists($this->phpunitConfig)) {
+            throw new \RuntimeException("Could not load the specified PHPUnit configuration '{$this->phpunitConfig}'");
+        }
+
         $process = popen($this->getPHPUnitCommand(), 'r');
 
         // block until PHPUnit has done running
@@ -65,6 +88,10 @@ class Test extends Task
 
         $report = JsonSplitter::split(file_get_contents($this->outputFile));
 
+        if (! $report[0]) {
+            throw new FailedBuildException("Could not start the test framework.");
+        }
+
         foreach ($report as $event) {
             if ('test' != $event->event) {
                 continue;
@@ -74,6 +101,7 @@ class Test extends Task
                 throw new FailedBuildException($message);
             }
         }
+
         unlink($this->outputFile);
     }
 }

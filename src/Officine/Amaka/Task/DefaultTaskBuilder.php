@@ -148,6 +148,18 @@ class DefaultTaskBuilder implements Invocable
     }
 
     /**
+     * This method will forward all unrecognized messages to the
+     * actual task object.
+     *
+     */
+    public function __call($method, $args = array())
+    {
+        if ($this->task && method_exists($this->task, $method)) {
+            return call_user_func_array(array($this->task, $method), $args);
+        }
+    }
+
+    /**
      *
      * @param variadic comma separated list of task names as strings.
      */
