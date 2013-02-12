@@ -21,3 +21,18 @@ Scenario: replacing single token in a file
   my.directive = On
   """
   And the file should not contain the original token "<%my.directive%>"
+
+Scenario: replacing tokens from a template into a new file
+  Given a file with the following content
+  """
+  # Example configuration
+  my.directive = <%my.directive%>
+  """
+  When I bind the value "On" to the token "<%my.directive%>"
+  When the token replacement plugin is run
+  Then the target file should be created
+  And the destination file should contain the replaced tokens
+  """
+  # Example configuration
+  my.directive = On
+  """

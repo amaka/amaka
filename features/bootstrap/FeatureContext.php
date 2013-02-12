@@ -19,6 +19,8 @@ use Officine\Amaka\Plugin\TokenReplacement;
 class FeatureContext extends BehatContext
 {
     private $plugin;
+    private $theFile;
+    private $theDestinationFile;
 
     public function __construct()
     {
@@ -82,5 +84,42 @@ class FeatureContext extends BehatContext
     {
         $content = file_get_contents($this->theFile);
         assertNotContains($token, $content);
+    }
+
+    /**
+     * @When /^the token replacement plugin is run$/
+     */
+    public function theTokenReplacementPluginIsRun()
+    {
+        $this->theDestinationFile = tempnam(null, null);
+        $this->plugin->replaceFromInto($this->theFile, $this->theDestinationFile);
+    }
+
+    /**
+     * @Then /^the target file should be created$/
+     */
+    public function theTargetFileShouldBeCreated()
+    {
+        assertTrue(file_exists($this->theDestinationFile));
+    }
+
+    /**
+     * @Given /^the destination file should contain the replaced tokens$/
+     */
+    public function theDestinationFileShouldContainTheReplacedTokens($content)
+    {
+        assertEquals((string) $content, file_get_contents($this->theDestinationFile));
+    }
+
+    /**
+     * @AfterScenario
+     */
+    public function cleanup()
+    {
+        foreach (array($this->theFile, $this->theDestinationFile) as $file) {
+            if (file_exists($file)) {
+                unlink($file);
+            }
+        }
     }
 }

@@ -30,4 +30,11 @@ class TokenReplacement implements PluginInterface
 
         file_put_contents($file, $updated);
     }
+
+    public function replaceFromInto($source, $destination)
+    {
+        if (copy($source, $destination)) {
+            $this->replaceInto($destination);
+        }
+    }
 }

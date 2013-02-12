@@ -17,6 +17,9 @@ use Officine\Amaka\AmakaScript\AmakaScript;
 use Officine\Amaka\AmakaScript\UndefinedTaskException;
 use Officine\Amaka\AmakaScript\AmakaScriptNotFoundException;
 
+use Officine\Amaka\PluginBroker;
+use Officine\Amaka\Plugin\TokenReplacement;
+
 /**
  * Amaka Build Automation System Façade
  *
@@ -34,7 +37,9 @@ class Amaka
     public function __construct(Context $context = null)
     {
         $this->setContext($context);
+
         $this->pluginBroker = new PluginBroker();
+        $this->pluginBroker->registerPlugin(new TokenReplacement());
     }
 
     public function setContext(Context $context = null)
