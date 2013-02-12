@@ -18,6 +18,9 @@ class ContextTest extends PHPUnit_Framework_TestCase
     public function testWorkingDirectoryBugOnWindows()
     {
         $context = new Context();
+        $this->assertTrue($context->isWindowsAbsolutePath('C:\\Wamp\\www\\test'));
+        $this->assertTrue($context->isWindowsAbsolutePath('\\\\server\\Wamp\\www\\test'));
+        $this->assertTrue($context->isWindowsAbsolutePath('\\Wamp\\www\\test'));
         $context->setWorkingDirectory('C:\\Wamp\\www\\test');
     }
 
