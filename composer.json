@@ -17,6 +17,7 @@
         "react/react": "dev-master",
         "react/promise": "dev-master",
         "phpunit/phpunit": "3.7.*",
+        "symfony/finder": "2.1.*",
         "zendframework/zend-i18n": "2.0.*",
         "zendframework/zend-validator": "2.0.*",
         "zendframework/zend-eventmanager": "2.0.*",
