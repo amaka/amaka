@@ -18,6 +18,7 @@ use Officine\Amaka\AmakaScript\UndefinedTaskException;
 use Officine\Amaka\AmakaScript\AmakaScriptNotFoundException;
 
 use Officine\Amaka\PluginBroker;
+use Officine\Amaka\Plugin\Finder;
 use Officine\Amaka\Plugin\TokenReplacement;
 
 /**
@@ -39,6 +40,7 @@ class Amaka
         $this->setContext($context);
 
         $this->pluginBroker = new PluginBroker();
+        $this->pluginBroker->registerPlugin(new Finder());
         $this->pluginBroker->registerPlugin(new TokenReplacement());
     }
 
