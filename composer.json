@@ -14,19 +14,23 @@
     ],
     "require": {
         "php": ">=5.3",
-        "react/react": "dev-master",
-        "react/promise": "dev-master",
-        "phpunit/phpunit": "3.7.*",
-        "symfony/finder": "2.1.*",
+        "phpunit/php-timer": "@stable",
+        "symfony/finder": "@stable",
         "zendframework/zend-i18n": "2.0.*",
-        "zendframework/zend-validator": "2.0.*",
-        "zendframework/zend-eventmanager": "2.0.*",
         "zendframework/zend-json": "2.0.*",
         "zendframework/zend-stdlib": "2.0.*",
         "zendframework/zend-loader": "2.0.*",
         "zendframework/zend-config": "2.0.*",
         "zendframework/zend-console": "2.0.*",
-        "behat/behat": "2.4.*@stable"
+        "zendframework/zend-validator": "2.0.*"
+    },
+    "require-dev": {
+        "behat/behat": "2.4.*",
+        "phpunit/phpunit": "3.7.*",
+        "zendframework/zend-eventmanager": "2.0.*"
+    },
+    "suggest": {
+        "symfony/finder": "To use the Symfony Finder component inside your Amaka Scripts"
     },
     "repositories": [
         {
