@@ -12,6 +12,6 @@ class FeatureContext extends BehatContext
     public function __construct()
     {
         $this->useContext('token_replacement', new TokenReplacementContext());
-        //$this->useContext('paths_module', new PathsModuleContext());
+        $this->useContext('directory_handling', new DirectoryHandlingContext());
     }
 }
