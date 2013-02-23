@@ -1,8 +1,10 @@
 <?php
 
 return array(
-    $this->task('test'),
-    $this->task(':spec', function() { system("vendor/bin/behat"); }),
-    $this->task(':build')->dependsOn('test', ':spec'),
-    $this->task(':dist')->dependsOn(':build'),
+    $amaka->task('test'),
+    $amaka->task(':spec', function() {
+        system("vendor/bin/behat -f progress");
+    }),
+    $amaka->task(':build')->dependsOn('test', ':spec'),
+    $amaka->task(':dist')->dependsOn(':build'),
 );

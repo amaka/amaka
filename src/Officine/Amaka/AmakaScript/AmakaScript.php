@@ -205,6 +205,7 @@ class AmakaScript implements \IteratorAggregate
         if (! file_exists($fileName)) {
             throw new AmakaScriptNotFoundException($fileName);
         }
+        $amaka = $this;
         return $this->loadFromArray(include $fileName);
     }
 }
