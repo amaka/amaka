@@ -21,51 +21,64 @@ class DirectoryHandlingContext extends BehatContext
 
     public function __construct()
     {
-        $this->plugin = new Directories();
-    }
+        $plugin = new Directories();
+        $workingDirectory = sys_get_temp_dir() . '/amaka-tests';
 
-    /**
-     * @Given /^an instance of the plugin in "([^"]*)"$/
-     */
-    public function anInstanceOfThePluginIn($workingDirectory)
-    {
-        $this->plugin->setWorkingDirectory($workingDirectory);
-    }
-
-    /**
-     * @Then /^the working directory should be "([^"]*)"$/
-     */
-    public function theWorkingDirectoryShouldBe($directory)
-    {
-        assertEquals($directory, $this->plugin->getWorkingDirectory());
-    }
-
-    /**
-     * @Given /^calling the "([^"]*)" should throw$/
-     */
-    public function callingTheShouldThrow($method)
-    {
-        try {
-            call_user_func(array($this->plugin, $method));
-        } catch (\BadMethodCallException $e) {
-            return true;
+        chdir(sys_get_temp_dir());
+        if (! file_exists($workingDirectory)) {
+            mkdir($workingDirectory);
         }
-        throw new Exception("The exception didn't happen.");
+        $plugin->setWorkingDirectory($workingDirectory);
+
+        $this->plugin = $plugin;
     }
 
     /**
-     * @When /^the "([^"]*)" method is called with "([^"]*)"$/
+     * @Given /^the test script is run in the system temporary directory$/
      */
-    public function theMethodIsCalledWith($arg1, $arg2)
+    public function theTestScriptIsRunInTheSystemTemporaryDirectory()
     {
-        throw new PendingException();
+        assertEquals(sys_get_temp_dir(), getcwd());
     }
 
     /**
-     * @Then /^the directory "([^"]*)" should exist$/
+     * @Given /^the directory "([^"]*)" is the plugin working directory$/
      */
-    public function theDirectoryShouldExist($arg1)
+    public function theDirectoryIsThePluginWorkingDirectory($directory)
     {
-        throw new PendingException();
+        assertEquals(basename($this->plugin->getWorkingDirectory()), $directory);
+    }
+
+    /**
+     * @Given /^the directory "([^"]*)" doesn\'t exist$/
+     */
+    public function theDirectoryDoesnTExist($directory)
+    {
+        assertFalse(file_exists($directory));
+    }
+
+    /**
+     * @Given /^the directory "([^"]*)" exists$/
+     */
+    public function theDirectoryExists($directory)
+    {
+        assertTrue(file_exists($directory));
+    }
+
+    /**
+     * @Then /^the directory "([^"]*)" is created$/
+     */
+    public function theDirectoryCreated($directory)
+    {
+        assertTrue($this->plugin->exists($directory));
+    }
+
+
+    /**
+     * @When /^the developer calls the "([^"]*)" method with "([^"]*)"$/
+     */
+    public function theDeveloperCallsTheMethodWith($method, $arg)
+    {
+        call_user_func(array($this->plugin, $method), $arg);
     }
 }

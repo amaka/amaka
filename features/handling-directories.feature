@@ -1,14 +1,15 @@
+@plugins @directories
 Feature: handling directories
-  when writing build scripts it's often necessary to move
-  directories from one place to the other.
+  In order to create, move, copy, or delete directories
+  Developers should be able to use the 'directories' plugin
+  simple API to do their job.
 
-  Scenario: a working directory must be defined before using the plugin
-    Given an instance of the plugin in "null"
-    Then the working directory should be "null"
-    And calling the "create" should throw
-    And calling the "remove" should throw
+  Background:
+    Given the directory "amaka-tests" exists
+    And the test script is run in the system temporary directory
+    And the directory "amaka-tests" is the plugin working directory
 
-  Scenario: creating a directory
-    Given an instance of the plugin in "amaka-tests"
-    When the "create" method is called with "empty-dir"
-    Then the directory "amaka-tests/empty-dir" should exist
+  Scenario: Creating a new directory
+    Given the directory "new-dir" doesn't exist
+    When the developer calls the "create" method with "new-dir"
+    Then the directory "new-dir" is created

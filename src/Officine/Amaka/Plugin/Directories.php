@@ -17,9 +17,25 @@ class Directories
         }
     }
 
-    public function create()
+    public function create($directory)
     {
-        $this->workingDirectoryCheck();
+        $path = $this->abs($directory);
+
+        if (! file_exists($path)) {
+            mkdir($path);
+        }
+    }
+
+    public function exists($directory)
+    {
+        return file_exists($this->abs($directory));
+    }
+
+    private function abs($directory)
+    {
+        return $this->getWorkingDirectory()
+             . DIRECTORY_SEPARATOR
+             . $directory;
     }
 
     public function remove()

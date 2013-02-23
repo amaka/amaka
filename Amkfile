@@ -2,6 +2,7 @@
 
 return array(
     $this->task('test'),
+    $this->task(':spec', function() { system("vendor/bin/behat"); }),
     $this->task(':build')->dependsOn('test'),
     $this->task(':dist')->dependsOn(':build'),
 );
