@@ -14,6 +14,11 @@ class Finder implements PluginInterface
         $this->finder = new SymfonyFinder();
     }
 
+    public function __invoke()
+    {
+        return $this->finder;
+    }
+
     public function __call($method, $args = array())
     {
         return call_user_func_array(array($this->finder, $method), $args);

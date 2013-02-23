@@ -41,7 +41,7 @@ try {
              . "Duration: " . sprintf("%.4fs ", $time) . PHP_EOL;
     };
 
-    $amaka->run(array_pop($args));
+    $amaka->run(end($args));
 } catch(Exception $e) {
     echo "Fatal (" . get_class($e) . "): {$e->getMessage()}\n";
     exit(1);
