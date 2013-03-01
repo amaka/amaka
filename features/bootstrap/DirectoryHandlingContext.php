@@ -54,7 +54,8 @@ class DirectoryHandlingContext extends BehatContext
      */
     public function theDirectoryDoesnTExist($directory)
     {
-        assertFalse(file_exists($directory));
+        assertFalse(file_exists($directory),
+                    "Failed asserting the directory '{$directory}' doesn't exist.");
     }
 
     /**
@@ -62,7 +63,8 @@ class DirectoryHandlingContext extends BehatContext
      */
     public function theDirectoryExists($directory)
     {
-        assertTrue(file_exists($directory));
+        assertTrue(file_exists($directory),
+                    "Failed asserting the directory '{$directory}' does exist.");
     }
 
     /**
@@ -71,6 +73,14 @@ class DirectoryHandlingContext extends BehatContext
     public function theDirectoryCreated($directory)
     {
         assertTrue($this->plugin->exists($directory));
+    }
+
+    /**
+     * @Then /^the directory "([^"]*)" is removed/
+     */
+    public function theDirectoryRemoved($directory)
+    {
+        assertFalse($this->plugin->exists($directory));
     }
 
 
