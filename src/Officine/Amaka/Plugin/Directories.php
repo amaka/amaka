@@ -42,17 +42,19 @@ class Directories
     {
         $this->workingDirectoryCheck();
 
-        $r = new RecursiveDirectoryIterator($directory, FilesystemIterator::SKIP_DOTS);
-        $i = new RecursiveIteratorIterator($r);
+        $dir = $this->abs($directory);
+
+        $r = new \RecursiveDirectoryIterator($dir, \FilesystemIterator::SKIP_DOTS);
+        $i = new \RecursiveIteratorIterator($r, \RecursiveIteratorIterator::CHILD_FIRST);
+
         foreach ($i as $e) {
             if ($e->isFile()) {
-                unlink($e);
+                unlink($e->getPathName());
             } else if ($e->isDir()) {
-                rmdir($this->abs($e));
+                rmdir($e->getPathName());
             }
-
         }
-        rmdir($this->abs($directory));
+        rmdir($dir);
     }
 
     public function setWorkingDirectory($directory)
