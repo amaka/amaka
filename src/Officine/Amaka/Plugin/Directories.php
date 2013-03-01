@@ -17,15 +17,6 @@ class Directories
         }
     }
 
-    public function create($directory)
-    {
-        $path = $this->abs($directory);
-
-        if (! file_exists($path)) {
-            mkdir($path);
-        }
-    }
-
     public function exists($directory)
     {
         return file_exists($this->abs($directory));
@@ -38,23 +29,37 @@ class Directories
              . $directory;
     }
 
+
+    public function create($directory)
+    {
+        $path = $this->abs($directory);
+
+        if (! file_exists($path)) {
+            mkdir($path);
+        }
+    }
+
     public function remove($directory)
     {
         $this->workingDirectoryCheck();
 
-        $dir = $this->abs($directory);
+        $path = $this->abs($directory);
 
-        $r = new \RecursiveDirectoryIterator($dir, \FilesystemIterator::SKIP_DOTS);
+        if (! file_exists($path)) {
+            return;
+        }
+
+        $r = new \RecursiveDirectoryIterator($path, \FilesystemIterator::SKIP_DOTS);
         $i = new \RecursiveIteratorIterator($r, \RecursiveIteratorIterator::CHILD_FIRST);
 
-        foreach ($i as $e) {
-            if ($e->isFile()) {
-                unlink($e->getPathName());
-            } else if ($e->isDir()) {
-                rmdir($e->getPathName());
+        foreach ($i as $child) {
+            if ($child->isFile()) {
+                unlink($child->getPathName());
+            } else if ($child->isDir()) {
+                rmdir($child->getPathName());
             }
         }
-        rmdir($dir);
+        rmdir($path);
     }
 
     public function setWorkingDirectory($directory)
