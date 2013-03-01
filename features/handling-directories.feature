@@ -13,3 +13,17 @@ Feature: handling directories
     Given the directory "new-dir" doesn't exist
     When the developer calls the "create" method with "new-dir"
     Then the directory "new-dir" is created
+
+  Scenario: removing an empty directory
+    Given the developer calls the "create" method with "empty-dir"
+    And the directory "empty-dir" is created
+    When the developer calls the "remove" method with "empty-dir"
+    Then the directory "empty-dir" is removed
+
+  Scenario: removing a non-empty directory
+    Given the developer calls the "create" method with "example"
+    And the developer calls the "create" method with "example/a"
+    And the developer calls the "create" method with "example/b"
+    And the developer calls the "create" method with "example/b/c"
+    When the developer calls the "remove" method with "example"
+    Then the directory "example" is removed

@@ -38,9 +38,21 @@ class Directories
              . $directory;
     }
 
-    public function remove()
+    public function remove($directory)
     {
         $this->workingDirectoryCheck();
+
+        $r = new RecursiveDirectoryIterator($directory, FilesystemIterator::SKIP_DOTS);
+        $i = new RecursiveIteratorIterator($r);
+        foreach ($i as $e) {
+            if ($e->isFile()) {
+                unlink($e);
+            } else if ($e->isDir()) {
+                rmdir($this->abs($e));
+            }
+
+        }
+        rmdir($this->abs($directory));
     }
 
     public function setWorkingDirectory($directory)
