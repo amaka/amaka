@@ -91,4 +91,12 @@ class DirectoryHandlingContext extends BehatContext
     {
         call_user_func(array($this->plugin, $method), $arg);
     }
+
+    /**
+     * @When /^the developer calls the "([^"]*)" method with "([^"]*)" and "([^"]*)"$/
+     */
+    public function theDeveloperCallsTheMethodWithAnd($method, $first, $second)
+    {
+        call_user_func_array(array($this->plugin, $method), array($first, $second));
+    }
 }

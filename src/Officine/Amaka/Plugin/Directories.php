@@ -2,7 +2,10 @@
 
 namespace Officine\Amaka\Plugin;
 
-class Directories
+use Officine\Amaka\PluginBroker;
+use Officine\Amaka\PluginInterface;
+
+class Directories implements PluginInterface
 {
     private $workingDirectory;
 
@@ -29,6 +32,10 @@ class Directories
              . $directory;
     }
 
+    public function move($source, $destination)
+    {
+        rename($this->abs($source), $this->abs($destination));
+    }
 
     public function create($directory)
     {

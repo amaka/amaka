@@ -14,7 +14,7 @@ Feature: handling directories
     When the developer calls the "create" method with "new-dir"
     Then the directory "new-dir" is created
 
-  Scenario: removing an empty directory
+  Scenario: removing a empty directory
     Given the developer calls the "create" method with "empty-dir"
     And the directory "empty-dir" is created
     When the developer calls the "remove" method with "empty-dir"
@@ -27,3 +27,10 @@ Feature: handling directories
     And the developer calls the "create" method with "example/b/c"
     When the developer calls the "remove" method with "example"
     Then the directory "example" is removed
+
+  Scenario: moving (or renaming) a empty directory
+    Given the developer calls the "create" method with "source"
+    And the directory "dest" doesn't exist
+    When the developer calls the "move" method with "source" and "dest"
+    Then the directory "dest" is created
+    And the directory "source" is removed
