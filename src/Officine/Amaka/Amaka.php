@@ -40,9 +40,10 @@ class Amaka
     {
         $this->setContext($context);
 
+        // this will be replaced with DI
         $this->pluginBroker = new PluginBroker();
         $this->pluginBroker->registerPlugin(new Finder());
-        $this->pluginBroker->registerPlugin(new Directories());
+        $this->pluginBroker->registerPlugin(new Directories($this->getContext()->getWorkingDirectory()));
         $this->pluginBroker->registerPlugin(new TokenReplacement());
     }
 
@@ -92,7 +93,11 @@ class Amaka
         }
 
         $this->amakaScript = new AmakaScript();
+
+        // pass the PluginBroker on to the amaka script
         $this->amakaScript->setPluginBroker($this->pluginBroker);
+
+        // load the tasks from the amaka script
         $this->amakaScript->load($scriptNameOrArray);
 
         return $this->amakaScript;

@@ -9,6 +9,11 @@ class Directories implements PluginInterface
 {
     private $workingDirectory;
 
+    public function __construct($wd = null)
+    {
+        $this->setWorkingDirectory($wd);
+    }
+
     public function workingDirectoryCheck()
     {
         // testing when $this->workingDirectory is a directory that
@@ -32,18 +37,43 @@ class Directories implements PluginInterface
              . $directory;
     }
 
-    public function move($source, $destination)
+    public function move($source, $dest)
     {
-        rename($this->abs($source), $this->abs($destination));
+        $pDest = $this->abs($dest);
+        $pSource = $this->abs($source);
+
+        if (! is_dir($pSource)) {
+            throw new \InvalidArgumentException("Cannot move directory '{$pSource}': not a valid source directory.");
+        }
+
+        if (file_exists($pDest) && ! is_dir($pDest)) {
+            throw new \InvalidArgumentException("Cannot move directory '{$pDest}': not a valid destination directory.");
+        }
+
+        if (is_dir($pDest)) {
+            rename($pSource, $this->abs($dest . '/' . $source));
+        } else {
+            rename($pSource, $pDest);
+        }
+
+        return $this;
     }
 
     public function create($directory)
     {
         $path = $this->abs($directory);
 
-        if (! file_exists($path)) {
-            mkdir($path);
+        if (file_exists($path)) {
+            throw new \InvalidArgumentException("Cannot create directory '{$path}': file already exists.");
         }
+
+        mkdir($path);
+
+        //if (! is_dir($path)) {
+        //    throw new \RuntimeException("Could not create directory '{$path}'.");
+        //}
+
+        return $this;
     }
 
     public function remove($directory)
@@ -53,7 +83,11 @@ class Directories implements PluginInterface
         $path = $this->abs($directory);
 
         if (! file_exists($path)) {
-            return;
+            throw new \InvalidArgumentException("Cannot remove directory '{$path}': directory does not exist.");
+        }
+
+        if (! is_dir($path)) {
+            throw new \InvalidArgumentException("Cannot remove directory '{$path}': not a valid directory.");
         }
 
         $r = new \RecursiveDirectoryIterator($path, \FilesystemIterator::SKIP_DOTS);
@@ -67,6 +101,8 @@ class Directories implements PluginInterface
             }
         }
         rmdir($path);
+
+        return $this;
     }
 
     public function setWorkingDirectory($directory)

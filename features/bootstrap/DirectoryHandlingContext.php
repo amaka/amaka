@@ -21,24 +21,26 @@ class DirectoryHandlingContext extends BehatContext
 
     public function __construct()
     {
-        $plugin = new Directories();
-        $workingDirectory = sys_get_temp_dir() . '/amaka-tests';
+        $wd = sys_get_temp_dir() . '/amaka-tests';
+        $plugin = new Directories($wd);
 
         chdir(sys_get_temp_dir());
-        if (! file_exists($workingDirectory)) {
-            mkdir($workingDirectory);
+        if (! file_exists($wd)) {
+            mkdir($wd);
         }
-        $plugin->setWorkingDirectory($workingDirectory);
 
         $this->plugin = $plugin;
     }
 
     /**
-     * @Given /^the test script is run in the system temporary directory$/
+     * @AfterScenario
      */
-    public function theTestScriptIsRunInTheSystemTemporaryDirectory()
+    public function cleanup()
     {
-        assertEquals(sys_get_temp_dir(), getcwd());
+        $d = new Directories(sys_get_temp_dir());
+        if ($d->exists('amaka-tests')) {
+            $d->remove('amaka-tests');
+        }
     }
 
     /**
@@ -54,7 +56,7 @@ class DirectoryHandlingContext extends BehatContext
      */
     public function theDirectoryDoesnTExist($directory)
     {
-        assertFalse(file_exists($directory),
+        assertFalse($this->plugin->exists($directory),
                     "Failed asserting the directory '{$directory}' doesn't exist.");
     }
 
@@ -63,26 +65,9 @@ class DirectoryHandlingContext extends BehatContext
      */
     public function theDirectoryExists($directory)
     {
-        assertTrue(file_exists($directory),
-                    "Failed asserting the directory '{$directory}' does exist.");
+        assertTrue($this->plugin->exists($directory),
+                    "Failed asserting the directory '{$directory}' exists.");
     }
-
-    /**
-     * @Then /^the directory "([^"]*)" is created$/
-     */
-    public function theDirectoryCreated($directory)
-    {
-        assertTrue($this->plugin->exists($directory));
-    }
-
-    /**
-     * @Then /^the directory "([^"]*)" is removed/
-     */
-    public function theDirectoryRemoved($directory)
-    {
-        assertFalse($this->plugin->exists($directory));
-    }
-
 
     /**
      * @When /^the developer calls the "([^"]*)" method with "([^"]*)"$/
@@ -98,5 +83,14 @@ class DirectoryHandlingContext extends BehatContext
     public function theDeveloperCallsTheMethodWithAnd($method, $first, $second)
     {
         call_user_func_array(array($this->plugin, $method), array($first, $second));
+    }
+
+    /**
+     * @Given /^the directory "([^"]*)" exists in the system temp directory$/
+     */
+    public function theDirectoryExistsInTheSystemTempDirectory($dir)
+    {
+        $temp = sys_get_temp_dir();
+        assertTrue(file_exists($temp . '/' . $dir));
     }
 }
