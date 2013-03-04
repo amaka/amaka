@@ -55,9 +55,9 @@ Feature: handling directories
     And the developer calls the "create" method with "dest/a"
     And the developer calls the "create" method with "source"
     And the developer calls the "create" method with "source/a"
-    And the developer calls the "create" method with "source/b"
+    And the developer calls the "create" method with "source/c"
     And the developer calls the "create" method with "source/a/b"
     When the developer calls the "move" method with "source" and "dest"
-    Then the directory "dest/source/a" exists
-    And the directory "dest/source/a/b" exists
-    And the directory "dest/source/b" exists
+    Then the directory "dest/a" exists
+    And the directory "dest/a/b" exists
+    And the directory "dest/c" exists

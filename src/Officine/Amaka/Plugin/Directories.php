@@ -30,11 +30,19 @@ class Directories implements PluginInterface
         return file_exists($this->abs($directory));
     }
 
-    private function abs($directory)
+    private function abs($directory = null)
     {
+        if (null === $directory) {
+            return $this->getWorkingDirectory();
+        }
+
         return $this->getWorkingDirectory()
              . DIRECTORY_SEPARATOR
              . $directory;
+    }
+
+    public function copy($source, $dest)
+    {
     }
 
     public function move($source, $dest)
@@ -50,8 +58,23 @@ class Directories implements PluginInterface
             throw new \InvalidArgumentException("Cannot move directory '{$pDest}': not a valid destination directory.");
         }
 
+        //if (is_dir($pDest)) {
+        //    throw new \InvalidArgumentException("Cannot move directory '{$pSource}' to '{$pDest}': directory exists.");
+        //}
+
         if (is_dir($pDest)) {
-            rename($pSource, $this->abs($dest . '/' . $source));
+            //echo "Copying '$pSource' into '$pDest'\n";
+            $r = new \RecursiveDirectoryIterator($pSource, \FilesystemIterator::SKIP_DOTS);
+            $i = new \RecursiveIteratorIterator($r, \RecursiveIteratorIterator::SELF_FIRST);
+
+            foreach ($i as $nSource) {
+                $nDest = str_replace($this->abs($source), $this->abs($dest), $nSource);
+                //echo "Moving $nSource to $nDest\n";
+                //rename($nSource, $nDest);
+                if (! file_exists($nDest)) {
+                    mkdir($nDest);
+                }
+            }
         } else {
             rename($pSource, $pDest);
         }
