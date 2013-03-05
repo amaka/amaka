@@ -7,4 +7,4 @@
  * @author    Andrea Turso <andrea.turso@gmail.com>
  */
 
-include __DIR__ . '/../src/bootstrap.php';
+require_once __DIR__ . '/../src/bootstrap.php';

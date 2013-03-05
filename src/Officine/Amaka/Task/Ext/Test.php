@@ -22,7 +22,17 @@ class Test extends Task
 
     public function __construct($name)
     {
-        $this->phpunitCommand = ROOT_DIR . '/vendor/bin/phpunit';
+        // we probably need a component to resolve executable/binary files
+        // from the vendor directory
+        $command = realpath(__DIR__ . '/../../../../../') . '/vendor/bin/phpunit';
+
+        // or possibly rely on what's installed on the system
+        if (! file_exists($command)) {
+            $command = trim(system("which phpunit"));
+        }
+        echo "Using PHPUnit command installed in: '{$command}'\n";
+
+        $this->phpunitCommand = $command;
         parent::__construct($name);
     }
 

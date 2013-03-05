@@ -6,11 +6,23 @@
  * @copyright Copyright (c) 2012 Andrea Turso
  * @author    Andrea Turso <andrea.turso@gmail.com>
  */
-define('ROOT_DIR', realpath(__DIR__ . '/../'));
-define('VENDOR_DIR', ROOT_DIR . '/vendor');
 
+if (! function_exists('includeIfExists')) {
+    function includeIfExists($file)
+    {
+        if (file_exists($file)) {
+            return include $file;
+        }
+    }
+}
 
-$loader = include VENDOR_DIR . '/autoload.php';
-$loader->add('Officine', __DIR__);
+if ((!$loader = includeIfExists(__DIR__ . '/../vendor/autoload.php'))
+    && (!$loader = includeIfExists(__DIR__ . '/../../../autoload.php'))) {
+    die(
+        'You must set up the project dependencies, run the following commands:' . PHP_EOL .
+        'curl -s http://getcomposer.org/installer | php' . PHP_EOL .
+        'php composer.phar install' . PHP_EOL
+    );
+}
 
 return $loader;
