@@ -71,8 +71,10 @@ class Directories implements PluginInterface
                 $nDest = str_replace($this->abs($source), $this->abs($dest), $nSource);
                 //echo "Moving $nSource to $nDest\n";
                 //rename($nSource, $nDest);
-                if (! file_exists($nDest)) {
+                if (! file_exists($nDest) && is_dir($nSource)) {
                     mkdir($nDest);
+                } else if (is_file($nSource)) {
+                    copy($nSource, $nDest);
                 }
             }
         } else {
