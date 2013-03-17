@@ -16,13 +16,18 @@ if (! function_exists('includeIfExists')) {
     }
 }
 
+attempt:
 if ((!$loader = includeIfExists(__DIR__ . '/../vendor/autoload.php'))
     && (!$loader = includeIfExists(__DIR__ . '/../../../autoload.php'))) {
-    die(
-        'You must set up the project dependencies, run the following commands:' . PHP_EOL .
-        'curl -s http://getcomposer.org/installer | php' . PHP_EOL .
-        'php composer.phar install' . PHP_EOL
-    );
+    file_put_contents(
+        sys_get_temp_dir() . '/installer.php',
+        file_get_contents('https://getcomposer.org/installer')
+        );
+    system('php ' . sys_get_temp_dir() . '/installer.php');
+    system('php composer.phar install');
+
+    goto attempt;
 }
+
 
 return $loader;
