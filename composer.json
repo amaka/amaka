@@ -16,9 +16,7 @@
         "php": ">=5.3",
         "phpunit/php-timer": "@stable",
         "symfony/finder": "@stable",
-        "zendframework/zendframework": ">=2"
-    },
-    "require-dev": {
+        "zendframework/zendframework": ">=2",
         "behat/behat": "2.4.*",
         "phpunit/phpunit": "3.7.*"
     },
