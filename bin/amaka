@@ -16,30 +16,54 @@ use Officine\Amaka\FailedBuildException;
 $getopt = new Getopt(array(
     'f=s'    => 'Load the specified buildfile',
     'list|l' => 'Prints the list of tasks in the buildfile',
+    'init'   => '',
 ));
 
 $opts = $getopt;
 $args = $getopt->getRemainingArgs();
 
 try {
-    $amakaScript = 'Amkfile';
+    $amaka = new Amaka();
+    $defaultScript = 'Amkfile';
+
     if (isset($opts->f)) {
-        $amakaScript = $opts->f;
+        $defaultScript = $opts->f;
+    }
+    if (isset($opts->init)) {
+        if (file_exists('Amkfile')) {
+            echo "An 'Amkfile' is already present in this project. Aborting." . PHP_EOL;
+        } else {
+            $script = <<<AMK_SCRIPT
+<?php
+/**
+ * This is an example amaka script
+ *
+ */
+return array(
+    \$amaka->task(':hello-world', function() {
+        echo "Hello World!" . PHP_EOL;
+    }),
+    \$amaka->task('test'),
+);
+
+AMK_SCRIPT;
+            if (file_put_contents('Amkfile', $script)) {
+                echo "The new 'Amkfile' script has been created successfully." . PHP_EOL;
+                echo "Now you can run the hello world task with 'amaka :hello-world'" . PHP_EOL;
+            } else {
+                echo "Could not create the 'Amkfile' script." . PHP_EOL;
+            }
+        }
+        return;
     }
 
-    $amaka = new Amaka();
-    $amaka->loadBuildfile($amakaScript);
+    $amaka->loadBuildfile($defaultScript);
 
     if (isset($opts->l)) {
         foreach ($amaka->getBuildfile() as $task) {
             echo $task->getName() . PHP_EOL;
         }
     }
-
-    $message = function($passOrFail, $time) {
-        return "BUILD {$passOrFail}" . PHP_EOL
-             . "Duration: " . sprintf("%.4fs ", $time) . PHP_EOL;
-    };
 
     $amaka->run(end($args));
 } catch(Exception $e) {
