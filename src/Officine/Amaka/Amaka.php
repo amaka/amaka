@@ -19,6 +19,7 @@ use Officine\Amaka\AmakaScript\AmakaScriptNotFoundException;
 
 use Officine\Amaka\PluginBroker;
 use Officine\Amaka\Plugin\Finder;
+use Officine\Amaka\Plugin\TaskArgs;
 use Officine\Amaka\Plugin\Directories;
 use Officine\Amaka\Plugin\TokenReplacement;
 
@@ -43,6 +44,7 @@ class Amaka
         // this will be replaced with DI
         $this->pluginBroker = new PluginBroker();
         $this->pluginBroker->registerPlugin(new Finder());
+        $this->pluginBroker->registerPlugin(new TaskArgs($this->getContext()->getParam('args')->toArray()));
         $this->pluginBroker->registerPlugin(new Directories($this->getContext()->getWorkingDirectory()));
         $this->pluginBroker->registerPlugin(new TokenReplacement());
     }

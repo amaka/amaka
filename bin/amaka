@@ -11,6 +11,7 @@ require_once __DIR__ . '/../src/bootstrap.php';
 
 use Zend\Console\Getopt;
 use Officine\Amaka\Amaka;
+use Officine\Amaka\Context\CliContext;
 use Officine\Amaka\FailedBuildException;
 
 $getopt = new Getopt(array(
@@ -22,12 +23,17 @@ $opts = $getopt;
 $args = $getopt->getRemainingArgs();
 
 try {
+    $task = array_pop($args);
+
     $amakaScript = 'Amkfile';
     if (isset($opts->f)) {
         $amakaScript = $opts->f;
     }
 
-    $amaka = new Amaka();
+    $context = new CliContext();
+    $context->setParam('args', $args);
+
+    $amaka = new Amaka($context);
     $amaka->loadBuildfile($amakaScript);
 
     if (isset($opts->l)) {
@@ -36,12 +42,7 @@ try {
         }
     }
 
-    $message = function($passOrFail, $time) {
-        return "BUILD {$passOrFail}" . PHP_EOL
-             . "Duration: " . sprintf("%.4fs ", $time) . PHP_EOL;
-    };
-
-    $amaka->run(end($args));
+    $amaka->run($task);
 } catch(Exception $e) {
     echo "Fatal (" . get_class($e) . "): {$e->getMessage()}\n";
     exit(1);
