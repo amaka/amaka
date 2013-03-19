@@ -2,7 +2,7 @@
 
 namespace Officine\Amaka\Plugin;
 
-use Zend\Console\GetOpt;
+use Zend\Console\Getopt;
 use Officine\Amaka\PluginBroker;
 use Officine\Amaka\PluginInterface;
 
@@ -10,7 +10,7 @@ class TaskArgs implements PluginInterface
 {
     private $opt;
 
-    public function __construct(array $rules = array())
+    public function __construct($rules = array())
     {
         $this->opt = new GetOpt(array(), $rules);
     }

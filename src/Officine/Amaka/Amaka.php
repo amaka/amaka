@@ -44,7 +44,7 @@ class Amaka
         // this will be replaced with DI
         $this->pluginBroker = new PluginBroker();
         $this->pluginBroker->registerPlugin(new Finder());
-        $this->pluginBroker->registerPlugin(new TaskArgs($this->getContext()->getParam('args')->toArray()));
+        $this->pluginBroker->registerPlugin(new TaskArgs($this->getContext()->getParam('args')));
         $this->pluginBroker->registerPlugin(new Directories($this->getContext()->getWorkingDirectory()));
         $this->pluginBroker->registerPlugin(new TokenReplacement());
     }

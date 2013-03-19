@@ -8,7 +8,6 @@
  */
 namespace Officine\Amaka;
 
-use Zend\I18n\Validator\Alpha;
 use Zend\Config\Config;
 use Zend\Stdlib\ArrayUtils;
 
@@ -58,8 +57,7 @@ class Context
             return true;
         }
 
-        $validator = new Alpha();
-        if ($validator->isValid(substr($path, 0, 1)) && ':' == substr($path, 1, 1)) {
+        if (preg_match('/^[a-z]+\:(.*)/i', $path)) {
             return true;
         }
         return false;
