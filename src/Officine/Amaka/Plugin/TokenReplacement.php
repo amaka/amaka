@@ -2,6 +2,9 @@
 
 namespace Officine\Amaka\Plugin;
 
+use Symfony\Component\Finder\SplFileInfo;
+use Symfony\Component\Finder\Finder as SymfonyFinder;
+
 use Officine\Amaka\PluginInterface;
 
 /**
@@ -44,18 +47,34 @@ class TokenReplacement implements PluginInterface
      * need to replace the tokens and save under a different file name
      * please {@see replaceFromInto($source, $destination)}
      *
-     * @param $file
+     * @param string $file      Replace tokens into the specified file
+     * @param Finder $file      Replace tokens into all files from the Finder
+     * @param SplFileInfo $file Replace tokens into the specified file
+     *
      * @return $this
      */
     public function replaceInto($file)
     {
+        $filename = $file;
+
+        if ($file instanceof SymfonyFinder) {
+            foreach ($file as $f) {
+                $this->replaceInto($f);
+            }
+            return;
+        }
+
+        if ($file instanceof SplFileInfo) {
+            $filename = $file->getRealPath();
+        }
+
         $toks = array_keys($this->map);
         $vals = array_values($this->map);
-        $content = file_get_contents($file);
 
+        $content = file_get_contents($filename);
         $updated = str_replace($toks, $vals, $content);
 
-        file_put_contents($file, $updated);
+        file_put_contents($filename, $updated);
 
         return $this;
     }

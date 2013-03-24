@@ -21,6 +21,9 @@ class Finder implements PluginInterface
 
     public function __call($method, $args = array())
     {
+        if (! method_exists($this->finder, $method)) {
+            throw new \BadMethodCallException("'{$method}' is not part of Symfony's Finder component.");
+        }
         return call_user_func_array(array($this->finder, $method), $args);
     }
 }
