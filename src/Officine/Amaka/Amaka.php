@@ -41,12 +41,32 @@ class Amaka
     {
         $this->setContext($context);
 
+        $arguments = $this->getContext()
+                          ->getParam('args');
+
+        $baseDirectory = $this->getContext()
+                              ->getWorkingDirectory();
+
         // this will be replaced with DI
-        $this->pluginBroker = new PluginBroker();
-        $this->pluginBroker->registerPlugin(new Finder());
-        $this->pluginBroker->registerPlugin(new TaskArgs($this->getContext()->getParam('args')));
-        $this->pluginBroker->registerPlugin(new Directories($this->getContext()->getWorkingDirectory()));
-        $this->pluginBroker->registerPlugin(new TokenReplacement());
+        $broker = new PluginBroker();
+        $plugins = array(
+            new Finder(),
+            new TaskArgs($arguments),
+            new Directories($baseDirectory),
+            new TokenReplacement(),
+        );
+
+        array_walk($plugins, function($plugin) use ($broker) {
+            $broker->registerPlugin($plugin);
+        });
+
+        $this->setPluginBroker($broker);
+    }
+
+    public function setPluginBroker($broker)
+    {
+        $this->pluginBroker = $broker;
+        return $this;
     }
 
     public function setContext(Context $context = null)

@@ -91,7 +91,12 @@ class Context
      */
     public function getParam($key)
     {
-        return $this->params->get($key);
+        $value = $this->params->get($key);
+
+        if ($value instanceof Config) {
+            return $value->toArray();
+        }
+        return $value;
     }
 
     /**

@@ -25,7 +25,11 @@ $args = $getopt->getRemainingArgs();
 
 try {
     $task = array_pop($args);
-    $amaka = new Amaka();
+
+    $context = new CliContext();
+    $context->setParam('args', $args);
+
+    $amaka = new Amaka($context);
     $defaultScript = 'Amkfile';
 
     // Let the user load a different amaka script
@@ -41,8 +45,10 @@ try {
             $script = <<<AMK_SCRIPT
 <?php
 /**
- * This is an example amaka script
- *
+  This is an example amaka script
+
+  If your project has a 'tests/' directory and a 'phpunit.xml' file
+  then you can run PHPUnit with 'amaka test'.
  */
 return array(
     \$amaka->task(':hello-world', function() {
