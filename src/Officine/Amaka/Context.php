@@ -39,11 +39,16 @@ class Context
      */
     public function setWorkingDirectory($path)
     {
-        if (! $this->isUnixAbsolutePath($path) && ! $this->isWindowsAbsolutePath($path)) {
+        if (! $this->isAbsolutePath($path)) {
             throw new \InvalidArgumentException('Working directory must be an absolute path');
         }
         $this->workingDirectory = $path;
         return $this;
+    }
+
+    public function isAbsolutePath($path)
+    {
+        return $this->isUnixAbsolutePath($path) || $this->isWindowsAbsolutePath($path);
     }
 
     public function isUnixAbsolutePath($path)

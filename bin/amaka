@@ -67,7 +67,6 @@ AMK_SCRIPT;
         return;
     }
 
-
     $amaka->loadBuildfile($defaultScript);
 
     // List the tasks defined in the amaka scripts

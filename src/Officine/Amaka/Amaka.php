@@ -94,6 +94,9 @@ class Amaka
 
     private function createAmakaScriptPath($script)
     {
+        if ($this->getContext()->isAbsolutePath($script)) {
+            return $script;
+        }
         return $this->getContext()->getWorkingDirectory()
              . DIRECTORY_SEPARATOR
              . $script;
@@ -120,6 +123,7 @@ class Amaka
         $this->amakaScript->setPluginBroker($this->pluginBroker);
 
         // load the tasks from the amaka script
+
         $this->amakaScript->load($scriptNameOrArray);
 
         return $this->amakaScript;
