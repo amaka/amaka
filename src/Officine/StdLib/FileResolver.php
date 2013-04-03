@@ -19,8 +19,9 @@ class FileResolver
         }
 
         foreach ($this->searchPaths as $path) {
-            if (file_exists($this->filter($path) . DIRECTORY_SEPARATOR . $filename)) {
-                $this->callOrIgnore($callback, $filepath);
+            $fullpath = $this->filter($path) . DIRECTORY_SEPARATOR . $filename;
+            if (file_exists($fullpath)) {
+                $this->callOrIgnore($callback, $fullpath);
                 return true;
             }
         }

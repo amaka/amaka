@@ -8,7 +8,9 @@
  */
 namespace Officine\Amaka\Task\Ext;
 
+use Officine\StdLib\FileResolver;
 use Officine\StdLib\JsonSplitter;
+
 use Officine\Amaka\Context;
 use Officine\Amaka\Task\Task;
 use Officine\Amaka\FailedBuildException;
@@ -22,18 +24,24 @@ class Test extends Task
 
     public function __construct($name)
     {
-        // we probably need a component to resolve executable/binary files
-        // from the vendor directory
-        $command = realpath(__DIR__ . '/../../../../../') . '/vendor/bin/phpunit';
+        $resolver = new FileResolver();
+        $resolver->addPath(realpath(__DIR__ . '/../../../../../') . '/vendor/bin')
+                 ->addPath('/usr/local/bin')
+                 ->addPath('/usr/bin');
 
-        // or possibly rely on what's installed on the system
-        if (! file_exists($command)) {
-            $command = trim(system("which phpunit"));
-        }
-        echo "Using PHPUnit command installed in: '{$command}'\n";
+        $test = $this;
+        $resolver->resolve('phpunit', function($command) use ($test) {
+            echo "PHPUnit command '$command'\n";
+            $test->setPHPUnitCommand($command);
+        });
 
-        $this->phpunitCommand = $command;
         parent::__construct($name);
+    }
+
+    public function setPHPUnitCommand($command)
+    {
+        $this->phpunitCommand = $command;
+        return $this;
     }
 
     public function setTestDirectory($directory)
