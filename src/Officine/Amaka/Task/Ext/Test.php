@@ -20,7 +20,7 @@ class Test extends Task
     private $outputFile;
     private $testDirectory = 'tests';
     private $phpunitConfig = 'phpunit.xml';
-    private $phpunitCommand = 'vendor/bin/phpunit';
+    private $phpunitCommand;
 
     public function __construct($name)
     {
@@ -33,6 +33,8 @@ class Test extends Task
         $resolver->resolve('phpunit', function($command) use ($test) {
             echo "PHPUnit command '$command'\n";
             $test->setPHPUnitCommand($command);
+        }, function() {
+            throw new \RuntimeException("PHPUnit doesn't seem to be installed anywhere on this system.");
         });
 
         parent::__construct($name);
