@@ -6,8 +6,6 @@
  * @copyright Copyright (c) 2012 Andrea Turso
  * @author    Andrea Turso <andrea.turso@gmail.com>
  */
-namespace Officine\Ois\Tests\Amaka\Task;
-
 use PHPUnit_Framework_TestCase as TestCase;
 use Officine\Amaka\Task\Task;
 

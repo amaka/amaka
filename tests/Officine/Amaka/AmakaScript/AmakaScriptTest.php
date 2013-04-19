@@ -6,8 +6,6 @@
  * @copyright Copyright (c) 2012 Andrea Turso
  * @author    Andrea Turso <andrea.turso@gmail.com>
  */
-namespace Officine\Ois\Tests\Amaka\AmakaScript;
-
 use Officine\Amaka\Invocable;
 use Officine\Amaka\AmakaScript\AmakaScript;
 

@@ -29,48 +29,96 @@ class AmakaTest extends TestCase
         $testContext->setWorkingDirectory(__DIR__ . '/AmakaScript/_files');
 
         $this->amaka = new Amaka($testContext);
-    }
-
-    // test amaka with contexts in a different test case
-
-    public function testLoadingBuildfile()
-    {
-        $this->amaka->loadBuildfile('Amkfile');
+        $this->amaka->loadAmakaScript('Amkfile');
     }
 
     /**
-     * @expectedException Officine\Amaka\AmakaScript\AmakaScriptNotFoundException
+     * @test
      */
-    public function testLoadingBuildfile2()
+    public function default_amaka_context_should_be_a_CliContext()
     {
-        $this->amaka->loadBuildfile('AmkfileBogus');
-    }
-
-    public function testLoadBuildfileReturnsTheLoadedBuildfile()
-    {
-        $buildfile = $this->amaka->loadBuildfile('Amkfile');
-        $this->assertSame($buildfile, $this->amaka->getBuildfile());
+        $amaka = new Amaka();
+        $this->assertInstanceOf('Officine\Amaka\Context\CliContext', $amaka->getContext());
     }
 
     /**
-     * @expectedException Officine\Amaka\AmakaScript\UndefinedTaskException
+     * @test
      */
-    public function testAnExceptionIsThrownWhenRunningATaskThatIsNotDefinedInTheBuildfile()
+    public function loading_amaka_script_resets_the_internal_instance()
     {
-        $buildfile = $this->amaka->loadBuildfile('Amkfile');
-        $this->assertNull($buildfile->get(':bogus-task'));
-        $this->amaka->run(':bogus-task');
+        $script = $this->amaka->loadAmakaScript('Amkfile');
+        $this->assertSame($script, $this->amaka->getAmakaScript());
+
+        $this->amaka->loadAmakaScript(array());
+        $this->assertNotSame($script, $this->amaka->getAmakaScript());
     }
 
-    public function testRunningATask()
+    /**
+     * @test
+     */
+    public function taskSelector()
     {
-        $buildfile = $this->amaka->loadBuildfile('Amkfile');
-        $this->assertTrue($buildfile->has(':test'));
+        $script = $this->getMockBuilder('Officine\Amaka\AmakaScript\AmakaScript')
+                       ->setMethods(array('has'))
+                       ->getMock();
+        $this->amaka->setAmakaScript($script);
+
+        $this->assertFalse($this->amaka->taskSelector(null));
+
+        $script->expects($this->any())
+               ->method('has')
+               ->with($this->equalTo(':default'))
+               ->will($this->returnValue(false));
+
+        $this->assertFalse($this->amaka->taskSelector(null));
+        $this->assertFalse($this->amaka->taskSelector(':default'));
+    }
+
+    /**
+     * @test
+     */
+    public function taskSelector2() {
+        $script = $this->getMockBuilder('Officine\Amaka\AmakaScript\AmakaScript')
+                       ->setMethods(array('has'))
+                       ->getMock();
+
+        $this->amaka->setAmakaScript($script);
+
+        $script->expects($this->any())
+               ->method('has')
+               ->with($this->equalTo(':default'))
+               ->will($this->returnValue(true));
+
+        $this->assertEquals(':default', $this->amaka->taskSelector(null));
+    }
+
+    /**
+     * @test
+     */
+    public function taskSelector3() {
+        $script = $this->getMockBuilder('Officine\Amaka\AmakaScript\AmakaScript')
+                       ->setMethods(array('has'))
+                       ->getMock();
+
+        $this->amaka->setAmakaScript($script);
+
+        $script->expects($this->at(0))
+               ->method('has')
+               ->with($this->equalTo(':default'))
+               ->will($this->returnValue(true));
+
+        $script->expects($this->at(1))
+               ->method('has')
+               ->with($this->equalTo(':my-task'))
+               ->will($this->returnValue(true));
+
+        $this->assertEquals(':default', $this->amaka->taskSelector(null));
+        $this->assertEquals(':my-task', $this->amaka->taskSelector(':my-task'));
     }
 
     public function testLoadingABuildfileFromArray()
     {
-        $this->amaka->loadBuildfile(array());
+        $this->amaka->loadAmakaScript(array());
     }
 
     /**

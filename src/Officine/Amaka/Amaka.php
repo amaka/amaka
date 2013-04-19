@@ -113,6 +113,8 @@ class Amaka
      */
     public function loadBuildfile($scriptNameOrArray)
     {
+        return $this->loadAmakaScript($scriptNameOrArray);
+
         if (is_string($scriptNameOrArray)) {
             $scriptNameOrArray = $this->createAmakaScriptPath($scriptNameOrArray);
         }
@@ -129,30 +131,81 @@ class Amaka
         return $this->amakaScript;
     }
 
+    public function setAmakaScript(AmakaScript $script)
+    {
+        $this->amakaScript = $script;
+        return $this;
+    }
+
+    public function getAmakaScript()
+    {
+        return $this->amakaScript;
+    }
+
+    // deprecated, remove before commit
+    public function loadAmakaScript($scriptName)
+    {
+        $scriptPath = $scriptName;
+        if (is_string($scriptName)) {
+            $scriptPath = $this->createAmakaScriptPath($scriptName);
+        }
+        $script = new AmakaScript();
+
+        // we need to remove this dependency triangle between Amaka, PluginBroker and AmakaScript,
+        // what we'll do in future refactorings is allow the TaskBuilders to get their own copy of
+        // the pluginBroker.
+        $script->setPluginBroker($this->pluginBroker);
+        $script->load($scriptPath);
+
+        $this->setAmakaScript($script);
+
+        return $script;
+    }
+
+    public function taskSelector($desiredTask = null)
+    {
+        // no desired task given, amaka script has :default task
+        if (! $desiredTask && $this->amakaScript->has(':default')) {
+            return ':default';
+        }
+        if ($desiredTask && $this->amakaScript->has($desiredTask)) {
+            return $desiredTask;
+        }
+        return false;
+    }
+
     /**
      * Run a task
      *
-     * @param string $entry Starting task
+     * @param string $startTask The initial task we want to run
      */
-    public function run($entry)
+    public function run($startTask)
     {
-        if (empty($entry)) {
+        $as = $this->amakaScript;
+
+        // run the default task when no start task was passed
+        // and the :default task exists in the amaka script
+        if (! $startTask && ($as && $as->has(':default'))) {
+            $startTask = ':default';
+        }
+
+        if (empty($startTask)) {
             throw new \RuntimeException("No task to run");
         }
 
-        if (null === $this->amakaScript->get($entry)) {
+        if (null === $as->get($startTask)) {
             throw new UndefinedTaskException(
-                "Task '{$entry}' was not defined in the amaka script."
+                "Task '{$startTask}' was not defined in the amaka script."
             );
         }
 
-        $detector = new CycleDetector($this->amakaScript);
-        $runner   = new StandardRunner($this->amakaScript);
+        $detector = new CycleDetector($as);
+        $runner   = new StandardRunner($as);
 
-        if (! $detector->isValid($entry)) {
+        if (! $detector->isValid($startTask)) {
             throw $detector->getExceptionClass();
         }
 
-        $runner->run($entry);
+        $runner->run($startTask);
     }
 }

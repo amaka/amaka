@@ -6,11 +6,7 @@
  * @copyright Copyright (c) 2012 Andrea Turso
  * @author    Andrea Turso <andrea.turso@gmail.com>
  */
-namespace Officine\Ois\Tests\Amaka;
-
 use PHPUnit_Framework_TestCase as TestCase;
-
-use ReflectionClass;
 use Officine\Amaka\Invocable;
 
 class InvocableTest extends TestCase

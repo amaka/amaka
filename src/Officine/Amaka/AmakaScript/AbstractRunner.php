@@ -40,20 +40,19 @@ abstract class AbstractRunner
      *
      * @param string $start
      */
-    public function run($start)
+    public function run($startTask)
     {
-        Timer::start();
+        $amakaScript = $this->buildfile;
 
-        $task = $this->buildfile->get($start);
-        $nodes = $this->buildfile->get($start)
+        $startTask = $amakaScript->get($startTask);
+        $nodes = $this->buildfile->get($startTask)
                                  ->getAdjacencyList();
 
+        Timer::start();
         foreach ($nodes as $prerequisite) {
             $this->run($prerequisite);
         }
-
-        $task->invoke();
-
+        $startTask->invoke();
         $this->duration = Timer::stop();
     }
 

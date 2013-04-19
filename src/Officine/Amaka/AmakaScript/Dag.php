@@ -275,12 +275,12 @@ abstract class AbstractDirectedGraph {
    */
   final public function detectCycles($node) {
     if (!$this->graphLoaded) {
-      throw new Exception(
+      throw new \Exception(
         "Call loadGraph() to build the graph out before calling ".
         "detectCycles().");
     }
     if (!isset($this->knownNodes[$node])) {
-      throw new Exception(
+      throw new \Exception(
         "The node '{$node}' is not known. Call addNodes() to seed the graph ".
         "with nodes.");
     }
