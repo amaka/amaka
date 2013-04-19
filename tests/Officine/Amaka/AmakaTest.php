@@ -76,11 +76,10 @@ class AmakaTest extends TestCase
      * @Given an Amaka Script with a only a task called ':default'
      * @When selecting a runnable task
      * @Then the taskSelector will yield ':default' when called with no arguments
-     * @And the taskSelector will yield ':default' when called with any argument
      *
      * @test
      */
-    public function taskSelector_yields_default_task() {
+    public function taskSelector1() {
         $script = $this->getMockBuilder('Officine\Amaka\AmakaScript\AmakaScript')
                        ->setMethods(array('has'))
                        ->getMock();
@@ -88,27 +87,49 @@ class AmakaTest extends TestCase
         $this->amaka->setAmakaScript($script);
 
         // has default (w/ null argument)
+        $script->expects($this->any())
+               ->method('has')
+               ->will($this->returnValue(true));
+
+        $this->assertEquals(':default', $this->amaka->taskSelector(null));
+    }
+
+    /**
+     * @Given an Amaka Script with a only a task called ':default'
+     * @When selecting a runnable task
+     * @Then the taskSelector will yield ':default' when called with ':default' as argument
+     * @And the taskSelector will yield ':default' when called with ':not-here' as argument
+     * @test
+     */
+    public function taskSelector2() {
+        $script = $this->getMockBuilder('Officine\Amaka\AmakaScript\AmakaScript')
+                       ->setMethods(array('has'))
+                       ->getMock();
+
+        $this->amaka->setAmakaScript($script);
+
+        // has default (w/ ':default' argument)
         $script->expects($this->at(0))
                ->method('has')
                ->will($this->returnValue(true));
 
-        // has desired (w/ null argument)
+        // has desired (w/ ':default' argument)
         $script->expects($this->at(1))
                ->method('has')
                ->will($this->returnValue(true));
 
-        // has default (w/ any argument)
+        // has default (w/ ':not-here' argument)
         $script->expects($this->at(2))
                ->method('has')
                ->will($this->returnValue(true));
 
-        // has desired (w/ any argument)
+        // has desired (w/ ':not-here' argument)
         $script->expects($this->at(3))
                ->method('has')
                ->will($this->returnValue(false));
 
-        $this->assertEquals(':default', $this->amaka->taskSelector(null));
-        $this->assertEquals(':default', $this->amaka->taskSelector(':my-task'));
+        $this->assertEquals(':default', $this->amaka->taskSelector(':default'));
+        $this->assertEquals(':default', $this->amaka->taskSelector(':not-here'));
     }
 
     /**
@@ -133,7 +154,6 @@ class AmakaTest extends TestCase
 
         $this->assertEquals(':default', $this->amaka->taskSelector(null));
         $this->assertEquals(':default', $this->amaka->taskSelector(':default'));
-
         $this->assertEquals(':my-task', $this->amaka->taskSelector(':my-task'));
     }
 

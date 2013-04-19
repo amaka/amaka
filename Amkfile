@@ -1,6 +1,7 @@
 <?php
 
 return array(
+    $amaka->task(':default')->dependsOn('test'),
     $amaka->task('test'),
     $amaka->task(':spec', function() {
         system("vendor/bin/behat -f progress");

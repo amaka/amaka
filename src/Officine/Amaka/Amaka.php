@@ -165,7 +165,8 @@ class Amaka
     public function taskSelector($desiredTask = null)
     {
         $hasDefaultTask = $this->amakaScript->has(':default');
-        $hasDesiredTask = $this->amakaScript->has($desiredTask);
+        // shortcircuit the call to has() when $desiredTask = null
+        $hasDesiredTask = $desiredTask && $this->amakaScript->has($desiredTask);
 
         if ($desiredTask) {
             if ($hasDesiredTask) {
@@ -174,11 +175,12 @@ class Amaka
             if ($hasDefaultTask) {
                 return ':default';
             }
-            return false;
         }
+
         if ($hasDefaultTask) {
             return ':default';
         }
+
         return false;
     }
 
@@ -190,14 +192,9 @@ class Amaka
     public function run($startTask)
     {
         $as = $this->amakaScript;
+        $startTask = $this->taskSelector($startTask);
 
-        // run the default task when no start task was passed
-        // and the :default task exists in the amaka script
-        if (! $startTask && ($as && $as->has(':default'))) {
-            $startTask = ':default';
-        }
-
-        if (empty($startTask)) {
+        if (false === $startTask) {
             throw new \RuntimeException("No task to run");
         }
 
