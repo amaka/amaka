@@ -164,12 +164,20 @@ class Amaka
 
     public function taskSelector($desiredTask = null)
     {
-        // no desired task given, amaka script has :default task
-        if (! $desiredTask && $this->amakaScript->has(':default')) {
-            return ':default';
+        $hasDefaultTask = $this->amakaScript->has(':default');
+        $hasDesiredTask = $this->amakaScript->has($desiredTask);
+
+        if ($desiredTask) {
+            if ($hasDesiredTask) {
+                return $desiredTask;
+            }
+            if ($hasDefaultTask) {
+                return ':default';
+            }
+            return false;
         }
-        if ($desiredTask && $this->amakaScript->has($desiredTask)) {
-            return $desiredTask;
+        if ($hasDefaultTask) {
+            return ':default';
         }
         return false;
     }
