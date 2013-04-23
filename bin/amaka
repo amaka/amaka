@@ -71,9 +71,11 @@ AMK_SCRIPT;
 
     // List the tasks defined in the amaka scripts
     if (isset($opts->l)) {
-        foreach ($amaka->getBuildfile() as $task) {
+        $script = $amaka->getAmakaScript();
+        foreach ($script as $task) {
             echo $task->getName() . PHP_EOL;
         }
+        return;
     }
 
     $amaka->run($task);
