@@ -23,7 +23,7 @@ class AmakaScriptLoadingLoadingTest extends PHPUnit_Framework_TestCase
         $context = new Context();
         $context->setWorkingDirectory(__DIR__ . '/AmakaScript/_files');
 
-        $amaka = new Amaka($context);
+        $amaka = new Amaka(null, $context);
         $amaka->loadAmakaScript('Amkfile');
     }
 

@@ -15,34 +15,33 @@ use Officine\Amaka\Context\CliContext;
 use Officine\Amaka\FailedBuildException;
 
 $getopt = new Getopt(array(
-    'f=s'    => 'Load the specified buildfile',
-    'list|l' => 'Prints the list of tasks in the buildfile',
-    'init'   => '',
+    'f=s'    => 'Load the specified amaka script',
+    'list|l' => 'Prints the tasks in the amaka script',
+    'init'   => "Create a new amaka script with a ':hello-world' task",
+    'help|h' => 'Show this help screen',
 ));
 
 $opts = $getopt;
 $args = $getopt->getRemainingArgs();
+$task = array_pop($args);
 
-try {
-    $task = array_pop($args);
+$scriptName = null;
+// Let the user load a different amaka script with -f
+if (isset($opts->f)) {
+    $scriptName = $opts->f;
+}
 
-    $context = new CliContext();
-    $context->setParam('args', $args);
+if (isset($opts->help)) {
+    echo $opts->getUsageMessage();
+    die(0);
+}
 
-    $amaka = new Amaka($context);
-    $defaultScript = 'Amkfile';
-
-    // Let the user load a different amaka script
-    if (isset($opts->f)) {
-        $defaultScript = $opts->f;
-    }
-
-    // Initialize the projecet
-    if (isset($opts->init)) {
-        if (file_exists('Amkfile')) {
-            echo "An 'Amkfile' is already present in this project. Aborting." . PHP_EOL;
-        } else {
-            $script = <<<AMK_SCRIPT
+// Handle the creation of the new script
+if (isset($opts->init)) {
+    if (file_exists('Amkfile')) {
+        echo "An 'Amkfile' is already present in this project. Aborting." . PHP_EOL;
+    } else {
+        $script = <<<AMK_SCRIPT
 <?php
 /**
   This is an example amaka script
@@ -67,16 +66,21 @@ AMK_SCRIPT;
         return;
     }
 
-    $amaka->loadBuildfile($defaultScript);
+$context = new CliContext();
+$context->setParam('args', $args);
+$amaka = new Amaka($scriptName, $context);
+$amaka->loadAmakaScript();
 
-    // List the tasks defined in the amaka scripts
-    if (isset($opts->l)) {
-        $script = $amaka->getAmakaScript();
-        foreach ($script as $task) {
-            echo $task->getName() . PHP_EOL;
-        }
-        return;
+// List the tasks defined in the amaka scripts
+if (isset($opts->l)) {
+    $script = $amaka->getAmakaScript();
+    foreach ($script as $task) {
+        echo $task->getName() . PHP_EOL;
     }
+    return;
+}
+
+try {
 
     $amaka->run($task);
 } catch(Exception $e) {

@@ -36,10 +36,12 @@ class Amaka
     private $context;
     private $amakaScript;
     private $pluginBroker;
+    private $defaultScriptName = 'Amkfile';
 
-    public function __construct(Context $context = null)
+    public function __construct($defaultName = null, Context $context = null)
     {
         $this->setContext($context);
+        $this->setDefaultScriptName($defaultName);
 
         $arguments = $this->getContext()
                           ->getParam('args');
@@ -61,6 +63,14 @@ class Amaka
         });
 
         $this->setPluginBroker($broker);
+    }
+
+    private function setDefaultScriptName($defaultName = null)
+    {
+        if (null !== $defaultName) {
+            $this->defaultScriptName = $defaultName;
+        }
+        return $this;
     }
 
     public function setPluginBroker($broker)
@@ -143,8 +153,12 @@ class Amaka
     }
 
     // deprecated, remove before commit
-    public function loadAmakaScript($scriptName)
+    public function loadAmakaScript($scriptName = null)
     {
+        if (null === $scriptName) {
+            $scriptName = $this->defaultScriptName;
+        }
+
         $scriptPath = $scriptName;
         if (is_string($scriptName)) {
             $scriptPath = $this->createAmakaScriptPath($scriptName);
