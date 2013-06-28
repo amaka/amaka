@@ -49,7 +49,7 @@ class Amaka
         $baseDirectory = $this->getContext()
                               ->getWorkingDirectory();
 
-        // this will be replaced with DI
+        // IoC should be applied to the code below this marker line
         $broker = new PluginBroker();
         $plugins = array(
             new Finder(),
@@ -63,14 +63,7 @@ class Amaka
         });
 
         $this->setPluginBroker($broker);
-    }
-
-    private function setDefaultScriptName($defaultName = null)
-    {
-        if (null !== $defaultName) {
-            $this->defaultScriptName = $defaultName;
-        }
-        return $this;
+        // end of marker
     }
 
     public function setPluginBroker($broker)
@@ -95,21 +88,6 @@ class Amaka
         }
 
         return $this->context;
-    }
-
-    public function getBuildfile()
-    {
-        return $this->amakaScript;
-    }
-
-    private function createAmakaScriptPath($script)
-    {
-        if ($this->getContext()->isAbsolutePath($script)) {
-            return $script;
-        }
-        return $this->getContext()->getWorkingDirectory()
-             . DIRECTORY_SEPARATOR
-             . $script;
     }
 
     public function setAmakaScript(AmakaScript $script)
@@ -154,15 +132,37 @@ class Amaka
         return $script;
     }
 
-    public function taskSelector($desiredTask = null)
+    /**
+     * Use this method when you need to know and select the task name
+     * to pass to the run method.
+     *
+     * When $candidateTask is registered in the script this method
+     * will return exaclty $candidateTask, meaning you can run that
+     * task without further tests.  On the other hand when
+     * $candidateTask isn't registered, but a default task is present,
+     * the name of the default task is returned. When neither the
+     * $candidateTask nor the default one are registered in the script
+     * the method returns false.
+     *
+     * <code>
+     *   $amaka->loadAmakaScript(...);
+     *   $taskToRun = $amaka->taskSelector(':my-task');
+     *
+     *   $amaka->run($taskToRun);
+     * </code>
+     *
+     * @param string $candidateTask [optional]
+     * @return string|false
+     */
+    public function taskSelector($candidateTask = null)
     {
         $hasDefaultTask = $this->amakaScript->has(':default');
-        // shortcircuit the call to has() when $desiredTask = null
-        $hasDesiredTask = $desiredTask && $this->amakaScript->has($desiredTask);
+        // shortcircuits the call to has() when $candidateTask = null
+        $hasDesiredTask = $candidateTask && $this->amakaScript->has($candidateTask);
 
-        if ($desiredTask) {
+        if ($candidateTask) {
             if ($hasDesiredTask) {
-                return $desiredTask;
+                return $candidateTask;
             }
             if ($hasDefaultTask) {
                 return ':default';
@@ -204,5 +204,40 @@ class Amaka
         }
 
         $runner->run($startTask);
+    }
+
+    /**
+     * Change the default name used for amaka scripts
+     *
+     * @param string $defaultName
+     * @return $this
+     */
+    private function setDefaultScriptName($defaultName = null)
+    {
+        if (null !== $defaultName) {
+            $this->defaultScriptName = $defaultName;
+        }
+        return $this;
+    }
+
+    /**
+     * Given a relative or absolute path to an amaka script this
+     * method will convert it into an absolute path.
+     *
+     * When $scriptNameOrPath it's an absolute path to an amaka script
+     * we allow the code to load the script even outside the working
+     * directory declared with the context.
+     *
+     * @param string $scriptNameOrPath
+     * @return string
+     */
+    private function createAmakaScriptPath($scriptNameOrPath)
+    {
+        if ($this->getContext()->isAbsolutePath($scriptNameOrPath)) {
+            return $scriptNameOrPath;
+        }
+        return $this->getContext()->getWorkingDirectory()
+             . DIRECTORY_SEPARATOR
+             . $scriptNameOrPath;
     }
 }
