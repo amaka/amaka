@@ -30,6 +30,6 @@ class AmakaTest extends TestCase
         $testContext->setWorkingDirectory(__DIR__ . '/AmakaScript/_files');
 
         $this->amaka = new Amaka($testContext);
-        $this->amaka->loadBuildfile('Amkfile');
+        $this->amaka->loadAmakaScript('Amkfile');
     }
 }

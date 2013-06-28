@@ -112,35 +112,6 @@ class Amaka
              . $script;
     }
 
-    /**
-     * load the specified amaka script
-     *
-     * NOTE Do not call this method with a path to the script. Just
-     * use the name.
-     *
-     * @param mixed $scriptNameOrArray The name of the script to load
-     * @return Officine\Amaka\AmakaScript\AmakaScript
-     */
-    public function loadBuildfile($scriptNameOrArray)
-    {
-        return $this->loadAmakaScript($scriptNameOrArray);
-
-        if (is_string($scriptNameOrArray)) {
-            $scriptNameOrArray = $this->createAmakaScriptPath($scriptNameOrArray);
-        }
-
-        $this->amakaScript = new AmakaScript();
-
-        // pass the PluginBroker on to the amaka script
-        $this->amakaScript->setPluginBroker($this->pluginBroker);
-
-        // load the tasks from the amaka script
-
-        $this->amakaScript->load($scriptNameOrArray);
-
-        return $this->amakaScript;
-    }
-
     public function setAmakaScript(AmakaScript $script)
     {
         $this->amakaScript = $script;
@@ -152,7 +123,15 @@ class Amaka
         return $this->amakaScript;
     }
 
-    // deprecated, remove before commit
+    /**
+     * load the specified amaka script
+     *
+     * NOTE Do not call this method with a path to the script. Just
+     * use the name.
+     *
+     * @param mixed $scriptNameOrArray The name of the script to load
+     * @return Officine\Amaka\AmakaScript\AmakaScript
+     */
     public function loadAmakaScript($scriptName = null)
     {
         if (null === $scriptName) {
@@ -165,9 +144,8 @@ class Amaka
         }
         $script = new AmakaScript();
 
-        // we need to remove this dependency triangle between Amaka, PluginBroker and AmakaScript,
-        // what we'll do in future refactorings is allow the TaskBuilders to get their own copy of
-        // the pluginBroker.
+        // we need to remove the coupling between Amaka, the PluginBroker and the AmakaScript classes
+        // We'll refactor and apply IoC for the TaskBuilder to accept its own reference of the pluginBroker.
         $script->setPluginBroker($this->pluginBroker);
         $script->load($scriptPath);
 

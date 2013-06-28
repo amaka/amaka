@@ -178,9 +178,8 @@ class AmakaScript implements \IteratorAggregate
     /**
      * Iteratively adds the elements in #$array# to the Buildfile
      *
-     * This method can be used to load a buildfile from inclusion.
-     *
-     * $buildfile = new Buildfile()->loadFromArray(include 'deployment.amkscript');
+     * This method is intended for internal use within the
+     * loadFromFile, any use form other client classes is discouraged.
      *
      * @param array $array
      * @return $this

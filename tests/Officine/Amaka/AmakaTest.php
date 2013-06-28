@@ -180,7 +180,7 @@ class AmakaTest extends TestCase
         $task->expects($this->once())
              ->method('invoke');
 
-        $buildfile = $this->amaka->loadBuildfile('AmkfileWithPrerequisites');
+        $buildfile = $this->amaka->loadAmakaScript('AmkfileWithPrerequisites');
         $buildfile[':test'] = $task;
 
         $this->amaka->run(':build');
