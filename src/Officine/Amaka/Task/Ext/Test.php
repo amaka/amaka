@@ -9,20 +9,26 @@
 namespace Officine\Amaka\Task\Ext;
 
 use Officine\StdLib\FileResolver;
-use Officine\StdLib\JsonSplitter;
 
-use Officine\Amaka\Context;
-use Officine\Amaka\Task\Task;
+use Officine\Amaka\Task\AbstractTask;
 use Officine\Amaka\FailedBuildException;
 
-class Test extends Task
-{
-    private $outputFile;
-    private $testDirectory = 'tests';
-    private $phpunitConfig = 'phpunit.xml';
-    private $phpunitCommand;
+use Officine\Amaka\PluginBroker;
+use Officine\Amaka\Plugin\PluginAwareInterface;
 
-    public function __construct($name)
+class Test extends AbstractTask implements PluginAwareInterface
+{
+    const IGNORE_OPTION = -1;
+
+    private $pluginBroker = null;
+    private $watchedDirectory = null;
+
+    private $phpunitCommand = null;
+    private $failOnError    = true;
+    private $testDirectory  = self::IGNORE_OPTION;
+    private $phpunitConfig  = self::IGNORE_OPTION;
+
+    public function __construct($name = 'Test')
     {
         $resolver = new FileResolver();
         $resolver->addPath(realpath(__DIR__ . '/../../../../../') . '/vendor/bin')
@@ -31,19 +37,12 @@ class Test extends Task
 
         $test = $this;
         $resolver->resolve('phpunit', function($command) use ($test) {
-            echo "PHPUnit command '$command'\n";
             $test->setPHPUnitCommand($command);
         }, function() {
-            throw new \RuntimeException("PHPUnit doesn't seem to be installed anywhere on this system.");
+            throw new \RuntimeException("Amaka could not locate a PHPUnit binary, try to declare one with setPHPUnitCommand(\$bin).");
         });
 
         parent::__construct($name);
-    }
-
-    public function setPHPUnitCommand($command)
-    {
-        $this->phpunitCommand = $command;
-        return $this;
     }
 
     public function setTestDirectory($directory)
@@ -52,76 +51,105 @@ class Test extends Task
         return $this;
     }
 
-    public function setNoConfigurationFile()
+    public function getTestDirectory()
     {
-        $this->phpunitConfig = false;
+        return $this->testDirectory;
+    }
+
+    public function setConfig($config)
+    {
+        $this->phpunitConfig = $config;
         return $this;
     }
 
-    public function setConfigurationFile($configuration)
+    public function setNoTestDirectory()
     {
-        $this->phpunitConfig = $configuration;
+        $this->testDirectory = self::IGNORE_OPTION;
         return $this;
     }
 
-    public function getPHPUnitCommand()
+    public function setNoConfig()
     {
-        $testDir = $this->testDirectory;
-        $outputFile = $this->outputFile;
-        $configFile = $this->phpunitConfig;
+        $this->phpunitConfig = self::IGNORE_OPTION;
+        return $this;
+    }
 
-        $options = "--stderr --stop-on-error --log-json {$outputFile}";
+    public function setPHPUnitCommand($command)
+    {
+        $this->phpunitCommand = $command;
+        return $this;
+    }
 
-        $useConfig = $configFile ? "-c {$configFile}" : "";
+    public function plugin($plugin)
+    {
+        return $this->getPluginBroker()
+                    ->getPlugin($plugin);
+    }
 
-        return "{$this->phpunitCommand} {$options} {$useConfig} {$testDir}";
+    public function getPluginBroker()
+    {
+        return $this->pluginBroker;
+    }
+
+    public function setPluginBroker(PluginBroker $broker)
+    {
+        $this->pluginBroker = $broker;
+        return $this;
+    }
+
+    public function setFailOnError($fail = true)
+    {
+        if (! $fail) {
+            $this->failOnError = self::IGNORE_OPTION;
+            return $this;
+        }
+        $this->failOnError = true;
+        return $this;
+    }
+
+    public function getPHPUnitCommand($withOptions = true)
+    {
+        if (false === $withOptions) {
+            return $this->phpunitCommand;
+        }
+
+        $options    = ($this->failOnError == self::IGNORE_OPTION ? "" : "--stop-on-error");
+        $useConfig  = ($this->phpunitConfig == self::IGNORE_OPTION ? "" : "-c {$this->phpunitConfig}");
+
+        return sprintf("{$this->phpunitCommand} %s %s",
+                       $options,
+                       $useConfig
+        );
     }
 
     /**
-     * TODO: Replace the code required to spawn the PHPUnit executable
-     * with PHPUnit objects.
      *
      */
     public function invoke()
     {
-        parent::invoke();
-
-        $this->outputFile = tempnam(null, 'amk.test.json');
-
-        if (! file_exists($this->testDirectory)) {
+        if (self::IGNORE_OPTION != $this->testDirectory
+            && ! file_exists($this->testDirectory)) {
             throw new \RuntimeException("No test directory specified, or directory not found.");
         }
 
-        if (false !== $this->phpunitConfig && ! file_exists($this->phpunitConfig)) {
+        if (self::IGNORE_OPTION != $this->phpunitConfig
+            && ! file_exists($this->phpunitConfig)) {
             throw new \RuntimeException("Could not load the specified PHPUnit configuration '{$this->phpunitConfig}'");
         }
 
-        $process = popen($this->getPHPUnitCommand(), 'r');
+        echo "Using PHPUnit ({$this->getPHPUnitCommand(false)})\n";
 
-        // block until PHPUnit has done running
-        if ($process) {
-            while (! feof($process)) {
-                fread($process, 8);
-            };
-            pclose($process);
-        }
+        $process = $this->plugin('spawner')
+                        ->spawn($this->getPHPUnitCommand(), realpath($this->getTestDirectory()));
 
-        $report = JsonSplitter::split(file_get_contents($this->outputFile));
-
-        if (! $report[0]) {
-            throw new FailedBuildException("Could not start the test framework.");
-        }
-
-        foreach ($report as $event) {
-            if ('test' != $event->event) {
-                continue;
+        $failOnError = $this->failOnError;
+        $process(null, function($error) use ($failOnError) {
+            if (self::IGNORE_OPTION == $failOnError) {
+                return;
             }
-            if ('fail' == $event->status || 'error' == $event->status) {
-                $message = "\n{$event->status}\n{$event->message}\n";
-                throw new FailedBuildException($message);
-            }
-        }
-
-        unlink($this->outputFile);
+            throw new FailedBuildException($error);
+        }, function($progress) {
+            echo $progress;
+        });
     }
 }

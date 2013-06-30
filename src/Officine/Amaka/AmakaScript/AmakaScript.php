@@ -41,8 +41,8 @@ class AmakaScript implements \IteratorAggregate
     {
         $this->list = new InvocablesList();
 
-        $this->fileBuilder = new FileTaskBuilder();
-        $this->taskBuilder = new DefaultTaskBuilder();
+        $this->fileBuilder = new FileTaskBuilder($this);
+        $this->taskBuilder = new DefaultTaskBuilder($this);
 
         $this->load($source);
     }

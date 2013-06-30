@@ -22,8 +22,8 @@ $getopt = new Getopt(array(
 ));
 
 $opts = $getopt;
-$args = $getopt->getRemainingArgs();
-$task = array_pop($args);
+$args = array_values($getopt->getRemainingArgs());
+$task = reset($args);
 
 $scriptName = null;
 // Let the user load a different amaka script with -f
@@ -53,7 +53,13 @@ return array(
     \$amaka->task(':hello-world', function() {
         echo "Hello World!" . PHP_EOL;
     }),
-    \$amaka->task('test'),
+    \$amaka->task('Test', function(\$self) {
+        /**
+           If the none of these parameters is specified the Test task
+           will not run.
+         */
+        \$self->setTestDirectory('tests');
+    }),
 );
 AMK_SCRIPT;
             if (file_put_contents('Amkfile', $script)) {

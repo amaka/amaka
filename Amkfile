@@ -1,11 +1,46 @@
 <?php
 
+use Officine\Amaka\Task\Ext\Test;
+use Officine\Amaka\Task\Ext\Watch;
+
+use Officine\Amaka\FailedBuildException;
+
 return array(
-    $amaka->task(':default')->dependsOn('test'),
-    $amaka->task('test'),
-    $amaka->task(':spec', function() {
-        system("vendor/bin/behat -f progress");
-    }),
-    $amaka->task(':build')->dependsOn('test', ':spec'),
+    /**
+     */
+    $amaka->task(':default')->dependsOn('Watch'),
+
+    /**
+     */
+    $amaka->task(':build')->dependsOn('Test', ':spec'),
+
+    /**
+     */
     $amaka->task(':dist')->dependsOn(':build'),
+
+    /**
+     */
+    $amaka->task(':spec', function($spawner) {
+        $process = $spawner->spawn("vendor/bin/behat -f progress");
+        $process(function() {
+            // pass silently
+        }, function($error) {
+            // make the build fail
+            throw new FailedBuildException("Some specifications have failed: '{$error}'");
+        }, function($progress) {
+            // show progress from the command
+            echo $progress;
+        });
+    }),
+
+    $amaka->task('Watch', function($self, $taskArgs) {
+        $args = $taskArgs->getRemainingArgs();
+        $self->setWatchedDirectory(end($args));
+    }),
+
+    /**
+     */
+    $amaka->task('Test', function($self) {
+        $self->setTestDirectory('tests');
+    }),
 );

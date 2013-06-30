@@ -6,6 +6,20 @@ class PluginBroker
 {
     private $plugins = array();
 
+    public function getPlugins()
+    {
+        return $this->plugins;
+    }
+
+    public function registerPlugins(array $plugins)
+    {
+        $broker = $this;
+        array_walk($plugins, function($plugin) use ($broker) {
+            $broker->registerPlugin($plugin);
+        });
+        return $this;
+    }
+
     public function registerPlugin(PluginInterface $plugin)
     {
         $key = self::pluginToKey($plugin);
@@ -30,12 +44,17 @@ class PluginBroker
         unset($this->plugins[$key]);
     }
 
-    public function plugin($key)
+    public function getPlugin($key)
     {
         if (! $this->contains($key)) {
             $this->noPluginFoundException($key);
         }
         return $this->plugins[$key];
+    }
+
+    public function plugin($key)
+    {
+        return $this->getPlugin($key);
     }
 
     public function isEmpty()
