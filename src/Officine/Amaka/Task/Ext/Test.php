@@ -9,22 +9,24 @@
 namespace Officine\Amaka\Task\Ext;
 
 use Officine\StdLib\FileResolver;
-use Officine\StdLib\JsonSplitter;
 
-use Officine\Amaka\Context;
-use Officine\Amaka\Task\Task;
+use Officine\Amaka\Task\AbstractTask;
 use Officine\Amaka\FailedBuildException;
 
-use React\Stream\Stream;
-use React\EventLoop\Factory as EventLoopFactory;
+use Officine\Amaka\PluginBroker;
+use Officine\Amaka\Plugin\PluginAwareInterface;
 
-class Test extends Task
+class Test extends AbstractTask implements PluginAwareInterface
 {
     const IGNORE_OPTION = -1;
 
-    private $phpunitCommand   = null;
-    private $testDirectory    = self::IGNORE_OPTION;
-    private $phpunitConfig    = self::IGNORE_OPTION;
+    private $pluginBroker = null;
+    private $watchedDirectory = null;
+
+    private $phpunitCommand = null;
+    private $failOnError    = true;
+    private $testDirectory  = self::IGNORE_OPTION;
+    private $phpunitConfig  = self::IGNORE_OPTION;
 
     public function __construct($name = 'Test')
     {
@@ -78,18 +80,45 @@ class Test extends Task
         return $this;
     }
 
+    public function plugin($plugin)
+    {
+        return $this->getPluginBroker()
+                    ->getPlugin($plugin);
+    }
+
+    public function getPluginBroker()
+    {
+        return $this->pluginBroker;
+    }
+
+    public function setPluginBroker(PluginBroker $broker)
+    {
+        $this->pluginBroker = $broker;
+        return $this;
+    }
+
+    public function setFailOnError($fail = true)
+    {
+        if (! $fail) {
+            $this->failOnError = self::IGNORE_OPTION;
+            return $this;
+        }
+        $this->failOnError = true;
+        return $this;
+    }
+
     public function getPHPUnitCommand($withOptions = true)
     {
         if (false === $withOptions) {
             return $this->phpunitCommand;
         }
 
-        $options    = "--stop-on-error";
-        $useConfig  = ($this->phpunitConfig == self::IGNORE_OPTION ? "" : "-c {$this->testDirectory}");
+        $options    = ($this->failOnError == self::IGNORE_OPTION ? "" : "--stop-on-error");
+        $useConfig  = ($this->phpunitConfig == self::IGNORE_OPTION ? "" : "-c {$this->phpunitConfig}");
 
         return sprintf("{$this->phpunitCommand} %s %s",
-                       $useConfig,
-                       $options
+                       $options,
+                       $useConfig
         );
     }
 
@@ -110,47 +139,17 @@ class Test extends Task
 
         echo "Using PHPUnit ({$this->getPHPUnitCommand(false)})\n";
 
-        $dspec = array(
-            array("pipe", "r"),
-            array("pipe", "w"),
-            array("pipe", "w") // stderr is a file to write to
-        );
+        $process = $this->plugin('spawner')
+                        ->spawn($this->getPHPUnitCommand(), realpath($this->getTestDirectory()));
 
-        $proc = proc_open(
-            $this->getPHPUnitCommand(),
-            $dspec,
-            $pipes,
-            $this->getTestDirectory());
-
-        if (false === $proc) {
-            throw new \RuntimeException("Could not run PHPUnit.");
-        }
-
-        // Let's discard stdin to the child process
-        fclose($pipes[0]);
-
-        $loop = EventLoopFactory::create();
-        $readStream = new Stream($pipes[1], $loop);
-        $readStream->on('data', function($data) {
-            if (! $data) {
+        $failOnError = $this->failOnError;
+        $process(null, function($error) use ($failOnError) {
+            if (self::IGNORE_OPTION == $failOnError) {
                 return;
             }
-            echo $data;
+            throw new FailedBuildException($error);
+        }, function($progress) {
+            echo $progress;
         });
-        $errorStream = new Stream($pipes[2], $loop);
-        $errorStream->on('data', function($error) {
-            if (! $error) {
-                return;
-            }
-            echo "error: {$error}\n";
-        });
-
-        $readStream->once('end', function() use ($proc) {
-            $exitStatus = proc_close($proc);
-            if ($exitStatus > 0) {
-                throw new FailedBuildException("There were some failed tests");
-            }
-        });
-        $loop->run();
     }
 }

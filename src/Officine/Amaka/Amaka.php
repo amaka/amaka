@@ -44,8 +44,7 @@ class Amaka
 
     public function __construct($defaultName = null, Context $context = null)
     {
-        $this->setContext($context);
-        $this->setDefaultScriptName($defaultName);
+        $loop = EventLoopFactory::create();
 
         $arguments = $this->getContext()
                           ->getParam('args');
@@ -53,25 +52,19 @@ class Amaka
         $baseDirectory = $this->getContext()
                               ->getWorkingDirectory();
 
-        // IoC should be applied to the code below this marker line
         $broker = new PluginBroker();
-        $loop = EventLoopFactory::create();
-
-        $plugins = array(
+        $broker->registerPlugins(array(
             new Spawner($loop),
             new Finder(),
             new TaskArgs($arguments),
             new Directories($baseDirectory),
             new TokenReplacement(),
-        );
-
-        array_walk($plugins, function($plugin) use ($broker) {
-            $broker->registerPlugin($plugin);
-        });
+        ));
 
         $this->setEventLoop($loop);
+        $this->setContext($context);
         $this->setPluginBroker($broker);
-        // end of marker
+        $this->setDefaultScriptName($defaultName);
     }
 
     public function setEventLoop($loop)

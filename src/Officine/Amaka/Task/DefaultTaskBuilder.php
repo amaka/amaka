@@ -12,6 +12,7 @@ use Officine\Amaka\Invocable;
 use Officine\Amaka\InvocablesList;
 use Officine\Amaka\AmakaScript\AmakaScript;
 use Officine\Amaka\PluginBroker;
+use Officine\Amaka\Plugin\PluginAwareInterface;
 
 /**
  * This is the default task builder implementation
@@ -98,11 +99,6 @@ class DefaultTaskBuilder implements Invocable
         return $this->pluginBroker;
     }
 
-    public function plugin($plugin)
-    {
-        return $this->pluginBroker->plugin($plugin);
-    }
-
     /**
      * Set the task invocation callback
      *
@@ -145,6 +141,10 @@ class DefaultTaskBuilder implements Invocable
     public function invoke()
     {
         $task = $this->build();
+
+        if ($task instanceof PluginAwareInterface) {
+            $task->setPluginBroker($this->getPluginBroker());
+        }
 
         // TODO: the following code is an hotfix added for the feature
         // 'Invocables with factory' to work. No test case have been

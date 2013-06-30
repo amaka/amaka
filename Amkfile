@@ -1,15 +1,18 @@
 <?php
 
 use Officine\Amaka\Task\Ext\Test;
+use Officine\Amaka\Task\Ext\Watch;
+
+use Officine\Amaka\FailedBuildException;
 
 return array(
     /**
      */
-    $amaka->task(':default')->dependsOn(':watch'),
+    $amaka->task(':default')->dependsOn('Watch'),
 
     /**
      */
-    $amaka->task(':build')->dependsOn('Test'),
+    $amaka->task(':build')->dependsOn('Test', ':spec'),
 
     /**
      */
@@ -17,46 +20,22 @@ return array(
 
     /**
      */
-    $amaka->task(':spec', function() {
-        system("vendor/bin/behat -f progress");
+    $amaka->task(':spec', function($spawner) {
+        $process = $spawner->spawn("vendor/bin/behat -f progress");
+        $process(function() {
+            // pass silently
+        }, function($error) {
+            // make the build fail
+            throw new FailedBuildException("Some specifications have failed: '{$error}'");
+        }, function($progress) {
+            // show progress from the command
+            echo $progress;
+        });
     }),
 
-    /**
-     */
-    $amaka->task(':watch', function($self, $deps, $taskArgs, $spawner) {
+    $amaka->task('Watch', function($self, $taskArgs) {
         $args = $taskArgs->getRemainingArgs();
-        $test = new Test();
-
-        if (empty(array_diff($args, array(':watch')))) {
-            throw new \InvalidArgumentException("Please provide a directory to watch for changes.");
-        }
-
-        $directory = end($args);
-
-        $test->setTestDirectory($directory);
-        $test->invoke();
-
-        $events = implode(',', array(
-            'modify',
-            'attrib',
-            'move',
-            'close_write',
-            'create',
-            'delete'
-        ));
-
-        $process = $spawner->spawn("inotifywait -qrme {$events} {$directory}");
-        $process(function($data) use ($test) {
-            if (strpos($data, 'CLOSE_WRITE')) {
-                $test->invoke();
-            }
-
-        }, function($error) {
-            if (! $error) {
-                return;
-            }
-            echo "error: {$error}\n";
-        });
+        $self->setWatchedDirectory(end($args));
     }),
 
     /**
