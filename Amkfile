@@ -1,37 +1,28 @@
 <?php
 
-return [
+return array(
     /**
      */
-    $amaka
-    -> task(':default')
-    -> dependsOn(':watch')
-    ,
+    $amaka->task(':default')
+          ->dependsOn(':watch'),
 
     /**
      */
-    $amaka
-    -> task(':build')
-    -> dependsOn(':test', ':spec')
-     ,
+    $amaka->task(':build')
+          ->dependsOn(':test', ':spec'),
 
     /**
      */
-    $amaka
-    -> task(':dist')
-    -> dependsOn(':build')
-     ,
+    $amaka->task(':dist')
+          ->dependsOn(':build'),
 
     /**
      */
-    $amaka
-    -> task(':test', function($deps) {
+    $amaka->task(':test', function($deps) {
         $deps->first()
              ->setTestDirectory('tests')
              ->invoke();
-    })
-    -> dependsOn('Test')
-    ,
+    })->dependsOn('Test'),
 
     /**
      */
@@ -41,12 +32,15 @@ return [
 
     /**
      */
-    $amaka
-    -> task(':watch', function($self, $deps, $taskArgs) {
+    $amaka->task(':watch', function($self, $deps, $taskArgs) {
         $args = $taskArgs->getRemainingArgs();
 
+        if (1 == count($args)) {
+            throw new \InvalidArgumentException("Please provide a directory to watch for changes.");
+        }
+
         $directory = end($args);
-        $test = $deps->get('Test')
+        $test = $deps->first()
                      ->setNoTestDirectory()
                      ->setConfigurationFile($directory);
 
@@ -78,19 +72,15 @@ return [
                 $test->invoke();
             }
         }
-    })
-    -> dependsOn('Test')
-    ,
+    })->dependsOn('Test'),
 
     /**
      */
-    $amaka
-    -> task('Test', function($self) {
+    $amaka->task('Test', function($self) {
         /**
            Inhibit the implicit invocation of this task
         */
         $self->setNoConfig()
              ->setNoTestDirectory();
-    })
-    ,
-];
+    }),
+);
