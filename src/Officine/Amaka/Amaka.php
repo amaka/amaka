@@ -10,6 +10,8 @@ namespace Officine\Amaka;
 
 use Zend\EventManager\EventManager;
 
+use React\EventLoop\Factory as EventLoopFactory;
+
 use Officine\Amaka\Context\CliContext;
 use Officine\Amaka\AmakaScript\CycleDetector;
 use Officine\Amaka\AmakaScript\StandardRunner;
@@ -19,6 +21,7 @@ use Officine\Amaka\AmakaScript\AmakaScriptNotFoundException;
 
 use Officine\Amaka\PluginBroker;
 use Officine\Amaka\Plugin\Finder;
+use Officine\Amaka\Plugin\Spawner;
 use Officine\Amaka\Plugin\TaskArgs;
 use Officine\Amaka\Plugin\Directories;
 use Officine\Amaka\Plugin\TokenReplacement;
@@ -34,6 +37,7 @@ use Officine\Amaka\Plugin\TokenReplacement;
 class Amaka
 {
     private $context;
+    private $eventLoop;
     private $amakaScript;
     private $pluginBroker;
     private $defaultScriptName = 'Amkfile';
@@ -51,7 +55,10 @@ class Amaka
 
         // IoC should be applied to the code below this marker line
         $broker = new PluginBroker();
+        $loop = EventLoopFactory::create();
+
         $plugins = array(
+            new Spawner($loop),
             new Finder(),
             new TaskArgs($arguments),
             new Directories($baseDirectory),
@@ -62,8 +69,15 @@ class Amaka
             $broker->registerPlugin($plugin);
         });
 
+        $this->setEventLoop($loop);
         $this->setPluginBroker($broker);
         // end of marker
+    }
+
+    public function setEventLoop($loop)
+    {
+        $this->eventLoop = $loop;
+        return $this;
     }
 
     public function setPluginBroker($broker)
@@ -184,6 +198,7 @@ class Amaka
     public function run($startTask)
     {
         $as = $this->amakaScript;
+        $loop = $this->eventLoop;
         $startTask = $this->taskSelector($startTask);
 
         if (false === $startTask) {
@@ -204,6 +219,7 @@ class Amaka
         }
 
         $runner->run($startTask);
+        $loop->run();
     }
 
     /**

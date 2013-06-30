@@ -55,13 +55,9 @@ return array(
     }),
     \$amaka->task('Test', function(\$self) {
         /**
-           Change with the actual filename of your phpunit configuration
-           file and test directory.
-
            If the none of these parameters is specified the Test task
            will not run.
          */
-        \$self->setConfigurationFile('phpunit.xml');
         \$self->setTestDirectory('tests');
     }),
 );

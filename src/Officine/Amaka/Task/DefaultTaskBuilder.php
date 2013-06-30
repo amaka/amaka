@@ -12,7 +12,6 @@ use Officine\Amaka\Invocable;
 use Officine\Amaka\InvocablesList;
 use Officine\Amaka\AmakaScript\AmakaScript;
 use Officine\Amaka\PluginBroker;
-use Officine\Amaka\Plugin\PluginAwareInterface;
 
 /**
  * This is the default task builder implementation
@@ -147,10 +146,6 @@ class DefaultTaskBuilder implements Invocable
     {
         $task = $this->build();
 
-        if ($task instanceof PluginAwareInterface) {
-            $task->setPluginBroker($this->getPluginBroker());
-        }
-
         // TODO: the following code is an hotfix added for the feature
         // 'Invocables with factory' to work. No test case have been
         // updated to cover this patch.
@@ -186,18 +181,6 @@ class DefaultTaskBuilder implements Invocable
             call_user_func_array($ic, $arguments);
         }
         $task->invoke();
-    }
-
-    /**
-     * This method will forward all unrecognized messages to the
-     * actual task object.
-     *
-     */
-    public function __call($method, $args = array())
-    {
-        if ($this->task && method_exists($this->task, $method)) {
-            return call_user_func_array(array($this->task, $method), $args);
-        }
     }
 
     public function __toString()

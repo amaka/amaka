@@ -1,0 +1,10 @@
+<phpunit bootstrap="helper.php">
+  <testsuites>
+    <testsuite name="Amaka Test Suite">
+      <directory>./</directory>
+    </testsuite>
+  </testsuites>
+
+  <php>
+  </php>
+</phpunit>

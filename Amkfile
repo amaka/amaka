@@ -1,28 +1,19 @@
 <?php
 
+use Officine\Amaka\Task\Ext\Test;
+
 return array(
     /**
      */
-    $amaka->task(':default')
-          ->dependsOn(':watch'),
+    $amaka->task(':default')->dependsOn(':watch'),
 
     /**
      */
-    $amaka->task(':build')
-          ->dependsOn(':test', ':spec'),
+    $amaka->task(':build')->dependsOn('Test'),
 
     /**
      */
-    $amaka->task(':dist')
-          ->dependsOn(':build'),
-
-    /**
-     */
-    $amaka->task(':test', function($deps) {
-        $deps->first()
-             ->setTestDirectory('tests')
-             ->invoke();
-    })->dependsOn('Test'),
+    $amaka->task(':dist')->dependsOn(':build'),
 
     /**
      */
@@ -32,18 +23,17 @@ return array(
 
     /**
      */
-    $amaka->task(':watch', function($self, $deps, $taskArgs) {
+    $amaka->task(':watch', function($self, $deps, $taskArgs, $spawner) {
         $args = $taskArgs->getRemainingArgs();
+        $test = new Test();
 
-        if (1 == count($args)) {
+        if (empty(array_diff($args, array(':watch')))) {
             throw new \InvalidArgumentException("Please provide a directory to watch for changes.");
         }
 
         $directory = end($args);
-        $test = $deps->first()
-                     ->setNoTestDirectory()
-                     ->setConfigurationFile($directory);
 
+        $test->setTestDirectory($directory);
         $test->invoke();
 
         $events = implode(',', array(
@@ -54,33 +44,24 @@ return array(
             'create',
             'delete'
         ));
-        $options = array();
-        $descriptors = array(
-            array("pipe", "r"),
-            array("pipe", "w"),
-            array("pipe", "w"),
-        );
-        $proc = proc_open(
-            "inotifywait -rme {$events} {$directory}",
-            $descriptors,
-            $pipes,
-            null,
-            array()
-        );
-        while ($line = fgets($pipes[1])) {
-            if (strpos($line, 'CLOSE_WRITE')) {
+
+        $process = $spawner->spawn("inotifywait -qrme {$events} {$directory}");
+        $process(function($data) use ($test) {
+            if (strpos($data, 'CLOSE_WRITE')) {
                 $test->invoke();
             }
-        }
-    })->dependsOn('Test'),
+
+        }, function($error) {
+            if (! $error) {
+                return;
+            }
+            echo "error: {$error}\n";
+        });
+    }),
 
     /**
      */
     $amaka->task('Test', function($self) {
-        /**
-           Inhibit the implicit invocation of this task
-        */
-        $self->setNoConfig()
-             ->setNoTestDirectory();
+        $self->setTestDirectory('tests');
     }),
 );

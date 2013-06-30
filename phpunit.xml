@@ -1,7 +1,0 @@
-<phpunit bootstrap="tests/helper.php">
-  <testsuites>
-    <testsuite name="Library Test Suite">
-      <directory>tests/</directory>
-    </testsuite>
-  </testsuites>
-</phpunit>
