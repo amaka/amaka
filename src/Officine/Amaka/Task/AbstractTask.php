@@ -59,4 +59,9 @@ abstract class AbstractTask implements Invocable, PluginAwareInterface
         $this->pluginBroker = $broker;
         return $this;
     }
+
+    public function __toString()
+    {
+        return $this->getName();
+    }
 }

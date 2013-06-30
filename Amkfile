@@ -1,11 +1,96 @@
 <?php
 
-return array(
-    $amaka->task(':default')->dependsOn('test'),
-    $amaka->task('test'),
+return [
+    /**
+     */
+    $amaka
+    -> task(':default')
+    -> dependsOn(':watch')
+    ,
+
+    /**
+     */
+    $amaka
+    -> task(':build')
+    -> dependsOn(':test', ':spec')
+     ,
+
+    /**
+     */
+    $amaka
+    -> task(':dist')
+    -> dependsOn(':build')
+     ,
+
+    /**
+     */
+    $amaka
+    -> task(':test', function($deps) {
+        $deps->first()
+             ->setTestDirectory('tests')
+             ->invoke();
+    })
+    -> dependsOn('Test')
+    ,
+
+    /**
+     */
     $amaka->task(':spec', function() {
         system("vendor/bin/behat -f progress");
     }),
-    $amaka->task(':build')->dependsOn('test', ':spec'),
-    $amaka->task(':dist')->dependsOn(':build'),
-);
+
+    /**
+     */
+    $amaka
+    -> task(':watch', function($self, $deps, $taskArgs) {
+        $args = $taskArgs->getRemainingArgs();
+
+        $directory = end($args);
+        $test = $deps->get('Test')
+                     ->setNoTestDirectory()
+                     ->setConfigurationFile($directory);
+
+        $test->invoke();
+
+        $events = implode(',', array(
+            'modify',
+            'attrib',
+            'move',
+            'close_write',
+            'create',
+            'delete'
+        ));
+        $options = array();
+        $descriptors = array(
+            array("pipe", "r"),
+            array("pipe", "w"),
+            array("pipe", "w"),
+        );
+        $proc = proc_open(
+            "inotifywait -rme {$events} {$directory}",
+            $descriptors,
+            $pipes,
+            null,
+            array()
+        );
+        while ($line = fgets($pipes[1])) {
+            if (strpos($line, 'CLOSE_WRITE')) {
+                $test->invoke();
+            }
+        }
+    })
+    -> dependsOn('Test')
+    ,
+
+    /**
+     */
+    $amaka
+    -> task('Test', function($self) {
+        /**
+           Inhibit the implicit invocation of this task
+        */
+        $self->setNoConfig()
+             ->setNoTestDirectory();
+    })
+    ,
+];

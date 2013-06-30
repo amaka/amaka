@@ -9,6 +9,8 @@
 namespace Officine\Amaka\Task;
 
 use Officine\Amaka\Invocable;
+use Officine\Amaka\InvocablesList;
+use Officine\Amaka\AmakaScript\AmakaScript;
 use Officine\Amaka\PluginBroker;
 use Officine\Amaka\Plugin\PluginAwareInterface;
 
@@ -54,11 +56,18 @@ class DefaultTaskBuilder implements Invocable
      */
     protected $task;
 
+    protected $amakaScript;
+
     /**
      * Plugin Broker
      *
      */
     protected $pluginBroker;
+
+    public function __construct(AmakaScript $script = null)
+    {
+        $this->amakaScript = $script;
+    }
 
     public function setTask(Invocable $task = null)
     {
@@ -147,7 +156,34 @@ class DefaultTaskBuilder implements Invocable
         // updated to cover this patch.
         if (is_callable($this->getInvocationCallback())) {
             $ic = $this->getInvocationCallback();
-            call_user_func_array($ic, array($this));
+            $ref = new \ReflectionFunction($ic);
+            $plugins = $this->getPluginBroker()->getPlugins();
+
+            $arguments = array();
+            foreach ($ref->getParameters() as $param) {
+                switch ($param->getName()) {
+                case 'deps':
+                    $deps = new InvocablesList();
+                    foreach ($this->getAdjacencyList() as $name) {
+                        $dep = $this->amakaScript->get($name)
+                                                 ->build();
+                        $deps->add($dep);
+                    }
+                    array_push($arguments, $deps);
+                    break;
+
+                case 'self':
+                    array_push($arguments, $task);
+                    break;
+
+                default:
+                    if (! array_key_exists($param->getName(), $plugins)) {
+                        throw new \InvalidArgumentException("Unknown argument or plugin '{$param->getName()}'.");
+                    }
+                    array_push($arguments, $plugins[$param->getName()]);
+                }
+            }
+            call_user_func_array($ic, $arguments);
         }
         $task->invoke();
     }
@@ -162,6 +198,14 @@ class DefaultTaskBuilder implements Invocable
         if ($this->task && method_exists($this->task, $method)) {
             return call_user_func_array(array($this->task, $method), $args);
         }
+    }
+
+    public function __toString()
+    {
+        if ($this->task instanceof Task) {
+            return $this->task->getName();
+        }
+        return (string) $this->task;
     }
 
     /**

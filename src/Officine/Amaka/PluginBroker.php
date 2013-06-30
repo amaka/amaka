@@ -6,6 +6,11 @@ class PluginBroker
 {
     private $plugins = array();
 
+    public function getPlugins()
+    {
+        return $this->plugins;
+    }
+
     public function registerPlugin(PluginInterface $plugin)
     {
         $key = self::pluginToKey($plugin);

@@ -17,7 +17,6 @@ use Officine\Amaka\FailedBuildException;
 
 class Test extends Task
 {
-    private $outputFile;
     private $testDirectory = 'tests';
     private $phpunitConfig = 'phpunit.xml';
     private $phpunitCommand;
@@ -52,9 +51,15 @@ class Test extends Task
         return $this;
     }
 
-    public function setNoConfigurationFile()
+    public function setNoTestDirectory()
     {
-        $this->phpunitConfig = false;
+        $this->testDirectory = -1;
+        return $this;
+    }
+
+    public function setNoConfig()
+    {
+        $this->phpunitConfig = -1;
         return $this;
     }
 
@@ -66,15 +71,19 @@ class Test extends Task
 
     public function getPHPUnitCommand()
     {
-        $testDir = $this->testDirectory;
-        $outputFile = $this->outputFile;
-        $configFile = $this->phpunitConfig;
+        $useConfig = $this->phpunitConfig;
+        $useTestDir = $this->testDirectory;
 
-        $options = "--stderr --stop-on-error --log-json {$outputFile}";
+        $options = "--stderr --stop-on-error";
 
-        $useConfig = $configFile ? "-c {$configFile}" : "";
+        $useConfig = ($useConfig == -1 ? "" : "-c {$useConfig}");
+        $useTestDir = ($useTestDir == -1 ? "" : "{$useTestDir}");
 
-        return "{$this->phpunitCommand} {$options} {$useConfig} {$testDir}";
+        return sprintf("{$this->phpunitCommand} %s %s %s",
+                       $useConfig,
+                       $options,
+                       $useTestDir
+        );
     }
 
     /**
@@ -86,42 +95,30 @@ class Test extends Task
     {
         parent::invoke();
 
-        $this->outputFile = tempnam(null, 'amk.test.json');
-
-        if (! file_exists($this->testDirectory)) {
+        if ($this->testDirectory != -1
+            && ! file_exists($this->testDirectory)) {
             throw new \RuntimeException("No test directory specified, or directory not found.");
         }
 
-        if (false !== $this->phpunitConfig && ! file_exists($this->phpunitConfig)) {
+        if ($this->phpunitConfig != -1
+            && ! file_exists($this->phpunitConfig)) {
             throw new \RuntimeException("Could not load the specified PHPUnit configuration '{$this->phpunitConfig}'");
         }
 
-        $process = popen($this->getPHPUnitCommand(), 'r');
-
-        // block until PHPUnit has done running
-        if ($process) {
-            while (! feof($process)) {
-                fread($process, 8);
-            };
-            pclose($process);
+        if ($this->phpunitConfig == -1
+            && $this->testDirectory == -1) {
+            return;
         }
 
-        $report = JsonSplitter::split(file_get_contents($this->outputFile));
+        $exitStatus = false;
+        system($this->getPHPUnitCommand());
 
-        if (! $report[0]) {
+        if (! false === $exitStatus) {
             throw new FailedBuildException("Could not start the test framework.");
         }
 
-        foreach ($report as $event) {
-            if ('test' != $event->event) {
-                continue;
-            }
-            if ('fail' == $event->status || 'error' == $event->status) {
-                $message = "\n{$event->status}\n{$event->message}\n";
-                throw new FailedBuildException($message);
-            }
+        if ($exitStatus > 0) {
+            throw new FailedBuildException();
         }
-
-        unlink($this->outputFile);
     }
 }
