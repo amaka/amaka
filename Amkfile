@@ -7,12 +7,42 @@ use Officine\Amaka\FailedBuildException;
 
 return array(
     /**
+       The ':default' task is executed each time amaka is called
+       without specifying a task.
+
+       This task will run the 'Test' task once
      */
-    $amaka->task(':default')->dependsOn('Watch'),
+    $amaka->task(':default')->dependsOn('Test'),
+
+    /**
+       Watch a directory for changes using the 'inotifywait' command
+     */
+    $amaka->task(':develop')->dependsOn('Watch'),
 
     /**
      */
-    $amaka->task(':build')->dependsOn('Test', ':spec'),
+    $amaka->task(':build', function($spawner, $directories) {
+        $directories->createIfNotExists('build');
+
+        $captureCommandInto = function($command, $into) use ($spawner) {
+            $report = fopen("build/{$into}", 'w+');
+            $process = $spawner->spawn($command);
+            $process(function($output) use ($command, $report) {
+                echo "Using ({$command})\n";
+                echo $output;
+                fwrite($report, $output);
+                fclose($report);
+            });
+        };
+
+        $captureCommandInto('phploc src', 'phploc.log');
+        $captureCommandInto('phpcdp --min-tokens 12 src', 'duplication.log');
+        $captureCommandInto('apigen --source src/ --destination build/docs --report build/checkstyle.log', 'apigen.log');
+    })->dependsOn('Test', ':spec', ':clean'),
+
+    $amaka->task(':clean', function($directories) {
+        $directories->removeIfExists('build');
+    }),
 
     /**
      */
@@ -33,9 +63,16 @@ return array(
         });
     }),
 
+    /**
+     */
     $amaka->task('Watch', function($self, $taskArgs) {
         $args = $taskArgs->getRemainingArgs();
-        $self->setWatchedDirectory(end($args));
+        $directory = end($args);
+
+        if (! $directory) {
+            $directory = "tests";
+        }
+        $self->setWatchedDirectory($directory);
     }),
 
     /**

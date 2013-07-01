@@ -3,28 +3,37 @@
 namespace Officine\Amaka\Plugin;
 
 use Officine\Amaka\PluginInterface;
-use React\Stream\Stream;
+use Officine\Amaka\EventLoopAwareInterface;
 
-class Spawner implements PluginInterface
+use React\Stream\Stream;
+use React\EventLoop\LoopInterface;
+
+class Spawner implements PluginInterface, EventLoopAwareInterface
 {
     private $process;
     private $eventLoop;
 
     public function __construct($eventLoop)
     {
-        $this->eventLoop = $eventLoop;
+        $this->setEventLoop($eventLoop);
     }
 
-    public function spawn($command, $directory = null)
+    public function setEventLoop(LoopInterface $loop)
     {
-        $descriptors = array(
+        $this->eventLoop = $loop;
+        return $this;
+    }
+
+    public function getProcHandle($command, $directory)
+    {
+        $dspec = array(
             array("pipe", "r"),
             array("pipe", "w"),
             array("pipe", "w"),
         );
         $proc = proc_open(
             $command,
-            $descriptors,
+            $dspec,
             $pipes,
             $directory
         );
@@ -33,28 +42,41 @@ class Spawner implements PluginInterface
             throw new \RuntimeException("Could not spawn process '$command'.");
         }
 
+        return array($proc, $pipes);
+    }
+
+    public function spawn($command, $directory = null)
+    {
+        list($proc, $pipes) = $this->getProcHandle($command, $directory);
+
         fclose($pipes[0]);
 
+        $self    = $this;
+        $message = "The process '$command' terminated with non-zero exit status.";
         $readStream  = new Stream($pipes[1], $this->eventLoop);
         $errorStream = new Stream($pipes[2], $this->eventLoop);
 
-        $self = $this;
         return function($callback = null, $errback = null, $progback = null)
-            use ($self, $proc, $command, $readStream, $errorStream) {
-            $readStream->on('data', function($data) use ($progback) {
-                is_callable($progback) && $progback($data);
+
+            use ($self, $proc, $message, $readStream, $errorStream) {
+
+            is_callable($errback) && $readStream->on('error', $errback);
+            is_callable($progback) && $readStream->on('data', $progback);
+
+            $outputBuffer = array();
+            $readStream->on('data', function($data) use (&$outputBuffer) {
+                array_push($outputBuffer, $data);
             });
 
-            $readStream->on('error', function($error) use ($errback) {
-                is_callable($errback) && $errback($error);
-            });
-
-            $readStream->on('end', function($stream) use ($proc, $command, $callback, $errback) {
+            $readStream->on('end', function($stream) use ($proc, $message, $callback, $errback, &$outputBuffer) {
                 $exitStatus = proc_close($proc);
-                if ($exitStatus > 0) {
-                    return is_callable($errback) && $errback("The process '$command' terminated with non-zero exit status.");
+
+                if ($exitStatus == 0) {
+                    $output = implode("", $outputBuffer);
+                    return is_callable($callback) && $callback($output);
                 }
-                is_callable($callback) && $callback($exitStatus);
+
+                return is_callable($errback) && $errback($message);
             });
         };
     }

@@ -84,6 +84,16 @@ class Directories implements PluginInterface
         return $this;
     }
 
+    public function createIfNotExists($directory)
+    {
+        $path = $this->abs($directory);
+
+        if (is_dir($path)) {
+            return $this;
+        }
+        return $this->create($directory);
+    }
+
     public function create($directory)
     {
         $path = $this->abs($directory);
@@ -99,6 +109,16 @@ class Directories implements PluginInterface
         //}
 
         return $this;
+    }
+
+    public function removeIfExists($directory)
+    {
+        $path = $this->abs($directory);
+
+        if (! is_dir($path)) {
+            return $this;
+        }
+        return $this->remove($directory);
     }
 
     public function remove($directory)
