@@ -1,5 +1,10 @@
 ![Amaka the PHP build automator.](https://raw.github.com/trashofmasters/amaka/gh-pages/img/amaka.png?raw=true)
 
-Please follow the link to [GitHub pages](http://trashofmasters.github.com/amaka) for the project documentation.
+Amaka is a PHP command line tool for build automation and it's meant to facilitate scaffolding of web applications, batch processing, write interactive CLI scripts.
+
+It is also an SDK that glues together solid components from Symfony and the Zend Framework and exposes them with straightforward interfaces designed to work in sinergy with the Amaka scripting environment and provide PHP developers with the ultimate PHP scaffolding DSL.
+
+
+The rest of the documentation (although still quite outdates) can be found in the project's [GitHub pages](http://trashofmasters.github.com/amaka).
 
 [![Build Status](https://travis-ci.org/trashofmasters/amaka.png?branch=develop)](https://travis-ci.org/trashofmasters/amaka)
