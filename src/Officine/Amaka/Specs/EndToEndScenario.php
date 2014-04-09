@@ -4,14 +4,26 @@ namespace Officine\Amaka\Specs;
 
 use Behat\Behat\Context\BehatContext;
 
-class EndToEndScenario  extends BehatContext
+class EndToEndScenario extends BehatContext
 {
     private $arguments = [];
     private $amakaCommand;
+    private $contextsDirectory;
 
-    public function __construct($amakaCommandPath)
+    public function __construct(array $parameters)
     {
-        $this->setAmakaCommand($amakaCommandPath);
+        $contextFileSuffix = 'Context.php';
+
+        $this->setAmakaCommand($parameters['amaka_command']);
+        $this->setContextDirectory($parameters['context_search_directory']);
+
+        if (isset($parameters['load_context_classes'], $parameters['context_search_directory'])
+        && $parameters['load_context_classes'] && is_dir($parameters['context_search_directory'])) {
+            $it = new \GlobIterator($parameters['context_search_directory'] . '/*.php');
+            foreach ($it as $file) {
+                echo $file . PHP_EOL;
+            }
+        }
     }
 
     public function addArgument($argument)
@@ -24,6 +36,17 @@ class EndToEndScenario  extends BehatContext
         if (isset($this->arguments[$argument])) {
             unset($this->arguments[$argument]);
         }
+    }
+
+    public function setContextDirectory($contextsDirectory)
+    {
+        $this->contextsDirectory = $contextsDirectory;
+        return $this;
+    }
+
+    public function getContextDirectory()
+    {
+        return $this->contextsDirectory;
     }
 
     public function setAmakaCommand($pathToAmaka)

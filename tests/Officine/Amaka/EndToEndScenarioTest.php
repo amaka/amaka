@@ -11,7 +11,7 @@ class EndToEndScenarioTest extends TestCase
      */
     public function shouldCollectCliArgumentsInAString()
     {
-        $scenario = new EndToEndScenario('bin/amaka');
+        $scenario = new EndToEndScenario('bin/amaka', null);
         $this->assertEquals("bin/amaka", $scenario->getAmakaCommand());
 
         $scenario->addArgument('--help');
@@ -30,10 +30,10 @@ class EndToEndScenarioTest extends TestCase
     {
         $failureMessage = "Failed to invoke PHP executable using 'system'. Is the 'php' binary in the path?";
 
-        $scenario = new EndToEndScenario("php -r 'exit(0);'");
+        $scenario = new EndToEndScenario("php -r 'exit(0);'", null);
         $this->assertTrue($scenario->runCommand(), $failureMessage);
 
-        $scenario = new EndToEndScenario("php -r 'exit(1);'");
+        $scenario = new EndToEndScenario("php -r 'exit(1);'", null);
         $this->assertFalse($scenario->runCommand(), $failureMessage);
     }
 }

@@ -1,11 +1,15 @@
 default:
-    paths:
-        features: specs/
-        bootstrap: %behat.paths.features%/src
+  paths:
+    features: specs
+    bootstrap: %behat.paths.features%/src
 
 acceptance:
-    context:
-        class: Officine\Amaka\Specs\EndToEndScenario
-    paths:
-        features: acceptance/
-        bootstrap: %behat.paths.features%/src
+  paths:
+    features: acceptance
+    bootstrap: %behat.paths.features%/src
+  context:
+    class: Officine\Amaka\Specs\EndToEndScenario
+    parameters:
+      amaka_command: %behat.paths.base%/bin/amaka
+      load_context_classes: true
+      context_search_directory: %behat.paths.bootstrap%
