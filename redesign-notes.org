@@ -1,0 +1,51 @@
+$task = $amaka->task('foo', function() {});
+$task->dependsOn('bar');
+
+The 'task' factory method returns an expression builder (namely an Amaka\Task\DefaultTaskBuilder object)
+that provides the user with interface for customising the task object.
+
+Adding a dependency with dependsOn() will have the effect of adding the name of
+the dependant task a list of dependants held within the builder. Once the build()
+method is called, this information is passed from the expression builder to the population api,
+i.e. the AmakaScript object, to construct a Symbol Table.
+
+
+
+The Amaka\AmakaScript\SymbolTable object aggregates Amaka\InvocableSequence representing the tasks
+and their dependants. Usually the sequence object contains, for example every time a task does not
+depend on any other task.
+
+// $a = new $amaka->task('A');
+// would eventually become: 'a' => new Amaka\InvocableSequence($a);
+
+// $b = new $amaka->task('B');
+// would eventually become: 'b' => new Amaka\InvocableSequence($a, $b);
+
+when the build method is called:
+- the amaka script can retrieve the dependency information from the builder
+using the getDependencyInformation (former getAdjacencyMatrix()).
+
+We want to keep strings (rather than objects) in the operational interface, and to allow
+for the AmakaScript to be verified as being a Directed Acyclic Graph.
+The problem seem to be due to the fact that the builder is leaking inside the population
+interface by exposing that method.
+
+$builder = new DefaultTaskBuilder();
+// population interface
+$taskConfiguration = $builder->getTaskConfiguration();
+$taskConfiguration->setName('A'); // sets the task name
+$taskConfiguration->setCallback(new Amaka\AmakaScript\TaskCallback(function($invocation){ echo 'A' . PHP_EOL; }));
+
+// operational interface
+$builder->dependsOn('B', 'C', 'D');
+
+// eventually (internally)
+$task = $builder->build();
+
+
+$taskConfiguration = $builder->getTaskConfiguration();
+$taskConfiguration->dependsOn();
+$taskConfiguration->foooooooo();
+
+introduce a new type of task: CallbackTask extends AbstractTask, a sibling of Task, to allow
+certain tasks to be customised with a body coming from the user.

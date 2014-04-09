@@ -16,8 +16,8 @@
         "php": ">=5.3",
         "phpunit/php-timer": "@stable",
         "symfony/finder": "@stable",
-        "zendframework/zendframework": ">=2",
-        "behat/behat": "2.4.*",
+        "zendframework/zendframework": "@stable",
+        "behat/behat": "@stable",
         "phpunit/phpunit": "3.7.*"
     },
     "suggest": {
@@ -31,7 +31,7 @@
     ],
     "autoload": {
         "psr-0": {
-            "Officine\\": "src/"
+            "Officine": "src/"
         }
     },
     "bin": ["bin/amaka"]
