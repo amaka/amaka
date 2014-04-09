@@ -28,11 +28,12 @@ class EndToEndScenarioTest extends TestCase
      */
     public function shouldSucceedInInvokingATtyOnThisSystem()
     {
-        $scenario = new EndToEndScenario("php -r 'exit(0);'");
-        $this->assertTrue($scenario->runCommand());
+        $failureMessage = "Failed to invoke PHP executable using 'system'. Is the 'php' binary in the path?";
 
-        //
+        $scenario = new EndToEndScenario("php -r 'exit(0);'");
+        $this->assertTrue($scenario->runCommand(), $failureMessage);
+
         $scenario = new EndToEndScenario("php -r 'exit(1);'");
-        $this->assertFalse($scenario->runCommand());
+        $this->assertFalse($scenario->runCommand(), $failureMessage);
     }
 }
