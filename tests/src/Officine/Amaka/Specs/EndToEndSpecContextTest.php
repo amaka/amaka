@@ -2,9 +2,9 @@
 
 use PHPUnit_Framework_TestCase as TestCase;
 
-use Officine\Amaka\Specs\EndToEndScenario;
+use Officine\Amaka\Specs\EndToEndSpecContext;
 
-class EndToEndScenarioTest extends TestCase
+class EndToEndSpecContextTest extends TestCase
 {
     private $commandKey;
     private $contextDirectory;
@@ -12,9 +12,9 @@ class EndToEndScenarioTest extends TestCase
 
     public function setUp()
     {
-        $this->commandKey = EndToEndScenario::AMAKA_CMD_KEY;
+        $this->commandKey = EndToEndSpecContext::AMAKA_CMD_KEY;
         $this->contextDirectory = __DIR__ . '/_files';
-        $this->contextDirectoryKey = EndToEndScenario::CONTEXT_DIR_KEY;
+        $this->contextDirectoryKey = EndToEndSpecContext::CONTEXT_DIR_KEY;
     }
 
     /**
@@ -22,7 +22,7 @@ class EndToEndScenarioTest extends TestCase
      */
     public function shouldCollectCliArgumentsInAString()
     {
-        $scenario = new EndToEndScenario([$this->commandKey => 'bin/amaka']);
+        $scenario = new EndToEndSpecContext([$this->commandKey => 'bin/amaka']);
         $this->assertEquals("bin/amaka", $scenario->getAmakaCommand());
 
         $scenario->addArgument('--help');
@@ -41,10 +41,10 @@ class EndToEndScenarioTest extends TestCase
     {
         $failureMessage = "Failed to invoke PHP executable using 'system'. Is the 'php' binary in the path?";
 
-        $scenario = new EndToEndScenario([$this->commandKey => "php -r 'exit(0);'"]);
+        $scenario = new EndToEndSpecContext([$this->commandKey => "php -r 'exit(0);'"]);
         $this->assertTrue($scenario->runCommand(), $failureMessage);
 
-        $scenario = new EndToEndScenario([$this->commandKey => "php -r 'exit(1);'"]);
+        $scenario = new EndToEndSpecContext([$this->commandKey => "php -r 'exit(1);'"]);
         $this->assertFalse($scenario->runCommand(), $failureMessage);
     }
 
@@ -53,7 +53,7 @@ class EndToEndScenarioTest extends TestCase
      */
     public function shouldImplementBehatContextAccessMethods()
     {
-        $scenario = new EndToEndScenario();
+        $scenario = new EndToEndSpecContext();
         $this->assertInstanceOf('Behat\Behat\Context\ContextInterface', $scenario);
 
         $this->assertEmpty($scenario->getSubcontexts());
@@ -63,7 +63,7 @@ class EndToEndScenarioTest extends TestCase
         $this->assertNotEmpty($scenario->getSubcontexts());
         $this->assertContains($scenario, $scenario->getSubcontexts());
 
-        $this->assertSame($scenario, $scenario->getSubcontextByClassName('Officine\Amaka\Specs\EndToEndScenario'));
+        $this->assertSame($scenario, $scenario->getSubcontextByClassName('Officine\Amaka\Specs\EndToEndSpecContext'));
     }
 
     /**
@@ -71,7 +71,7 @@ class EndToEndScenarioTest extends TestCase
      */
     public function shouldLoadContextClassesFromDirectory()
     {
-        $scenario = new EndToEndScenario([$this->contextDirectoryKey => $this->contextDirectory]);
+        $scenario = new EndToEndSpecContext([$this->contextDirectoryKey => $this->contextDirectory]);
 
         $this->assertFileExists($this->contextDirectory);
         $this->assertFileExists($this->contextDirectory . '/ExampleContext.php');

@@ -1,1 +1,0 @@
-Feature: Symfony finder plugin

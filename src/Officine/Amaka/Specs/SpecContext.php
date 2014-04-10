@@ -5,19 +5,15 @@ namespace Officine\Amaka\Specs;
 use Behat\Behat\Context\BehatContext;
 use Behat\Behat\Context\ContextInterface;
 
-class EndToEndScenario extends BehatContext
+class SpecContext extends BehatContext
 {
     private $subContexts = [];
-    private $amakaCommand;
-    private $commandArguments = [];
-    private $contextsDirectory;
+    private $contextDirectory;
 
-    const AMAKA_CMD_KEY = 'amaka_command';
     const CONTEXT_DIR_KEY = 'context_directory';
 
     public function __construct(array $parameters = [])
     {
-        !isset($parameters[self::AMAKA_CMD_KEY]) ?: $this->setAmakaCommand($parameters[self::AMAKA_CMD_KEY]);
         !isset($parameters[self::CONTEXT_DIR_KEY]) ?: $this->setContextDirectory($parameters[self::CONTEXT_DIR_KEY]);
     }
 
@@ -49,18 +45,6 @@ class EndToEndScenario extends BehatContext
         }
     }
 
-    public function addArgument($argument)
-    {
-        $this->commandArguments[$argument] = $argument;
-    }
-
-    public function removeArgument($argument)
-    {
-        if (isset($this->commandArguments[$argument])) {
-            unset($this->commandArguments[$argument]);
-        }
-    }
-
     public function setContextDirectory($contextDirectory)
     {
         $this->contextDirectory = $contextDirectory;
@@ -70,27 +54,6 @@ class EndToEndScenario extends BehatContext
     public function getContextDirectory()
     {
         return $this->contextDirectory;
-    }
-
-    public function setAmakaCommand($pathToAmaka)
-    {
-        $this->amakaCommand = $pathToAmaka;
-        return $this;
-    }
-
-    public function getAmakaCommand()
-    {
-        if (empty($this->commandArguments)) {
-            return $this->amakaCommand;
-        }
-        return $this->amakaCommand . ' ' . implode(' ', $this->commandArguments);
-    }
-
-    public function runCommand()
-    {
-        system($this->getAmakaCommand(), $exitCode);
-
-        return 0 === (int) $exitCode;
     }
 
     public function tryLoadingContextClasses()

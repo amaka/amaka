@@ -8,7 +8,7 @@ acceptance:
     features: acceptance
     bootstrap: %behat.paths.features%/src
   context:
-    class: Officine\Amaka\Specs\EndToEndScenario
+    class: Officine\Amaka\Specs\EndToEndSpecContext
     parameters:
       amaka_command: %behat.paths.base%/bin/amaka
       context_directory: %behat.paths.bootstrap%
