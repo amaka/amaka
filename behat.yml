@@ -11,5 +11,4 @@ acceptance:
     class: Officine\Amaka\Specs\EndToEndScenario
     parameters:
       amaka_command: %behat.paths.base%/bin/amaka
-      load_context_classes: true
-      context_search_directory: %behat.paths.bootstrap%
+      context_directory: %behat.paths.bootstrap%

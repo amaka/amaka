@@ -14,7 +14,6 @@ class ProvaContext extends BehatContext
      */
     public function anInitialCondition()
     {
-        throw new PendingException();
     }
 
     /**
@@ -22,6 +21,5 @@ class ProvaContext extends BehatContext
      */
     public function somethingHappens()
     {
-        throw new PendingException();
     }
 }
