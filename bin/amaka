@@ -13,6 +13,7 @@ use Zend\Console\Getopt;
 use Officine\Amaka\Amaka;
 use Officine\Amaka\Context\CliContext;
 use Officine\Amaka\FailedBuildException;
+use Officine\Amaka\AmakaScript\AmakaScriptNotFoundException;
 
 $getopt = new Getopt(array(
     'f=s'    => 'Load the specified amaka script',
@@ -66,23 +67,31 @@ AMK_SCRIPT;
         return;
     }
 
-$context = new CliContext();
-$context->setParam('args', $args);
-$amaka = new Amaka($scriptName, $context);
-$amaka->loadAmakaScript();
-
-// List the tasks defined in the amaka scripts
-if (isset($opts->l)) {
-    $script = $amaka->getAmakaScript();
-    foreach ($script as $task) {
-        echo $task->getName() . PHP_EOL;
-    }
-    return;
-}
-
 try {
+    $context = new CliContext();
+    $context->setParam('args', $args);
 
+    $amaka = new Amaka($scriptName, $context);
+    $amaka->loadAmakaScript();
+
+    if (isset($opts->l)) {
+        $script = $amaka->getAmakaScript();
+        foreach ($script as $task) {
+            echo $task->getName() . PHP_EOL;
+        }
+        return;
+    }
+
+    echo "(Loaded '{$amaka->getAmakaScript()}')\n";
     $amaka->run($task);
+} catch (AmakaScriptNotFoundException $e) {
+    if (isset($opts->f)) {
+        throw $e;
+    }
+    echo "Error: No amaka scripts to load found.\n";
+    echo "Generate a default amaka script using the `--init' option.\n";
+
+    exit(1);
 } catch(Exception $e) {
     echo "Fatal (" . get_class($e) . "): {$e->getMessage()}\n";
     exit(1);

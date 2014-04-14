@@ -112,7 +112,7 @@ class Amaka
      */
     public function loadAmakaScript($scriptName = null)
     {
-        if (null === $scriptName) {
+        if (! $scriptName) {
             $scriptName = $this->defaultScriptName;
         }
 
@@ -125,10 +125,10 @@ class Amaka
         // we need to remove the coupling between Amaka, the PluginBroker and the AmakaScript classes
         // We'll refactor and apply IoC for the TaskBuilder to accept its own reference of the pluginBroker.
         $script->setPluginBroker($this->pluginBroker);
+
         $script->load($scriptPath);
 
         $this->setAmakaScript($script);
-
         return $script;
     }
 

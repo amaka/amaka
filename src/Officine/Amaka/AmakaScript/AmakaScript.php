@@ -37,12 +37,18 @@ class AmakaScript implements \IteratorAggregate
      */
     private $taskBuilder;
 
+    private $scriptId;
+
+    private static $scriptIdCounter = 1;
+
     public function __construct($source = null)
     {
         $this->list = new InvocablesList();
 
         $this->fileBuilder = new FileTaskBuilder();
         $this->taskBuilder = new DefaultTaskBuilder();
+
+        $this->scriptId = __CLASS__ . '#' . self::$scriptIdCounter++;
 
         $this->load($source);
     }
@@ -204,7 +210,14 @@ class AmakaScript implements \IteratorAggregate
         if (! file_exists($fileName)) {
             throw new AmakaScriptNotFoundException($fileName);
         }
+
+        $this->scriptId = $fileName;
         $amaka = $this;
         return $this->loadFromArray(include $fileName);
+    }
+
+    public function __toString()
+    {
+        return $this->scriptId;
     }
 }

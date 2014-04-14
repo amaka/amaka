@@ -96,6 +96,39 @@ class ScriptLoadingContext extends EndToEndSpecContext
      */
     public function thereIsTheAmakaScriptInWith($fileName, PyStringNode $content)
     {
+        $this->createAmakaScriptWithContent($fileName, $content);
+    }
+
+    /**
+     * @Given /^the amaka script "([^"]*)" is available$/
+     */
+    public function theAmakaScriptIsAvailable($fileName)
+    {
+        $this->createAmakaScriptWithContent($fileName, "<?php return [];");
+    }
+
+    /**
+     * @Given /^the amaka script "([^"]*)" is not available$/
+     */
+    public function theAmakaScriptIsNotAvailable($fileName)
+    {
+        if ($this->getWorkingDirectory()) {
+            $fileName = $this->getWorkingDirectory() . '/' . $fileName;
+        }
+
+        assertFileNotExists($fileName);
+    }
+
+    /** @AfterScenario */
+    public function cleanUnnecessaryAmkfiles()
+    {
+        foreach ($this->scriptsCreated as $script) {
+            unlink($script);
+        }
+    }
+
+    private function createAmakaScriptWithContent($fileName, $content)
+    {
         if ($this->getWorkingDirectory()) {
             $fileName = $this->getWorkingDirectory() . '/' . $fileName;
         }
@@ -106,14 +139,5 @@ class ScriptLoadingContext extends EndToEndSpecContext
         assertEquals(file_get_contents($fileName), $content);
 
         $this->scriptsCreated[] = $fileName;
-    }
-
-    /** @AfterScenario */
-    public function cleanUnnecessaryAmkfiles()
-    {
-        foreach ($this->scriptsCreated as $script) {
-            echo "Unlinking $script\n";
-            unlink($script);
-        }
     }
 }

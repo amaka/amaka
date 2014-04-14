@@ -7,22 +7,38 @@ Feature: Amaka script loading mechanism
     Given amaka executable is in "bin/amaka"
     And the current working directory is "%system.temp%"
 
-    Scenario: Run amaka, default Amkfile in working directory
-      Given the amaka script "Amkfile" contains
-      """
-      <?php
-          return [];
-      """
+    Scenario: -f option provided, file available, default script available
+      Given the amaka script "File.amk" is available
+      And the amaka script "Amkfile" is available
+      When I run amaka with arguments "-f File.amk"
+      Then the output on the screen should match "@(Loaded '([^']*)File.amk')@s"
+
+    Scenario: -f option provided, file available, default script not available
+      Given the amaka script "File.amk" is available
+      And the amaka script "Amkfile" is not available
+      When I run amaka with arguments "-f File.amk"
+      Then the output on the screen should match "@(Loaded '([^']*)File.amk')@s"
+
+    Scenario: -f option provided, file not available, default script available
+      Given the amaka script "BogusFile.amk" is not available
+      And the amaka script "Amkfile" is available
+      When I run amaka with arguments "-f BogusFile.amk"
+      Then the output on the screen should match "@Amaka script @s"
+
+    Scenario: -f option provided, file not available, default script not available
+      Given the amaka script "BogusFile.amk" is not available
+      And the amaka script "Amkfile" is not available
+      When I run amaka with arguments "-f BogusFile.amk"
+      Then the output on the screen should match "@Amaka script '([^']*)BogusFile.amk' not found@s"
+
+    Scenario: -f option not provided, default script available
+      Given the amaka script "Amkfile" is available
+      And the amaka script "BogusFile.amk" is not available
+      When I run amaka with arguments "-f BogusFile.amk"
+      Then the output on the screen should match "@Amaka script '([^']*)BogusFile.amk' not found@s"
+
+    Scenario: -f option not provided, default script not available
+      Given the amaka script "Amkfile" is not available
       When I run amaka with arguments ""
-      And the output on the screen should match "@(No task to run)@"
-      Then the program exit status should be non-zero
-
-    Scenario: Run amaka without arguments, no Amkfile in the working directory
-      Given I run amaka with arguments ""
-      Then the output on the screen should match "@Amaka script '([^']*)Amkfile' not found*@s"
-      And the program exit status should be non-zero
-
-    Scenario: Run amaka, path to bogus Amkfile specified
-      Given I run amaka with arguments "-f bogus"
-      Then the output on the screen should match "@Amaka script '([^']*)' not found*@s"
-      And the program exit status should be non-zero
+      Then the output on the screen should match "@(No amaka scripts to load found)@s"
+      And the output on the screen should match "@(Generate a default amaka script using)@s"
