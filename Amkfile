@@ -9,8 +9,10 @@ return array(
     }),
     $amaka->task(':build', function($directories) {
         $directories->create('build');
+
         system("vendor/bin/phpunit --coverage-html build/coverage 2>&1");
         system("vendor/bin/behat --format=html > build/specs.html");
         system("vendor/bin/behat -p acceptance --format=html > build/acceptance.html");
+        system("vendor/bin/phpmd src/ html pmd.xml --reportfile build/mess.html");
     }),
 );

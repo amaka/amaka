@@ -9,6 +9,7 @@ use Officine\Amaka\AmakaScript\AmakaScript;
  * amaka script useful for determining if a circular dependency between
  * invocables exist in the script.
  *
+ * @SuppressWarnings(PHPMD)
  */
 class Dag extends AbstractDirectedGraph
 {
@@ -144,6 +145,7 @@ class Dag extends AbstractDirectedGraph
  *
  * @group util
  * @stable
+ * @SuppressWarnings(PHPMD)
  */
 abstract class AbstractDirectedGraph {
 

@@ -14,11 +14,14 @@
     ],
     "require": {
         "php": ">=5.3",
-        "phpunit/php-timer": "@stable",
         "symfony/finder": "@stable",
-        "zendframework/zendframework": "@stable",
+        "phpunit/php-timer": "@stable",
         "behat/behat": "@stable",
-        "phpunit/phpunit": "3.7.*"
+        "phpunit/phpunit": "@stable",
+        "zendframework/zendframework": "@stable"
+    },
+    "require-dev": {
+        "phpmd/phpmd" : "1.4.*"
     },
     "suggest": {
         "symfony/finder": "To use the Symfony Finder component inside your Amaka Scripts"
