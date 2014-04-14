@@ -113,6 +113,6 @@ class InvocablesList extends \ArrayObject
         if ($invocable instanceof Invocable) {
             return $invocable->getName();
         }
-        throw new \InvalidArgumentException("Not a valid Invocable name or reference given");
+        throw new \InvalidArgumentException("Empty invocable name or reference given.");
     }
 }

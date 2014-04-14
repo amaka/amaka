@@ -74,6 +74,8 @@ try {
     $amaka = new Amaka($scriptName, $context);
     $amaka->loadAmakaScript();
 
+    echo "(Loaded '{$amaka->getAmakaScript()}')\n";
+
     if (isset($opts->l)) {
         $script = $amaka->getAmakaScript();
         foreach ($script as $task) {
@@ -82,7 +84,9 @@ try {
         return;
     }
 
-    echo "(Loaded '{$amaka->getAmakaScript()}')\n";
+    if ($task) {
+        echo "(Task '$task')\n";
+    }
     $amaka->run($task);
 } catch (AmakaScriptNotFoundException $e) {
     if (isset($opts->f)) {

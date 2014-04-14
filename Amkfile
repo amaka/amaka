@@ -1,11 +1,16 @@
 <?php
 
 return array(
-    $amaka->task(':default')->dependsOn('test'),
     $amaka->task('test'),
+    $amaka->task(':default')->dependsOn('test', ':spec'),
     $amaka->task(':spec', function() {
         system("vendor/bin/behat -f progress");
+        system("vendor/bin/behat -p acceptance -f progress");
     }),
-    $amaka->task(':build')->dependsOn('test', ':spec'),
-    $amaka->task(':dist')->dependsOn(':build'),
+    $amaka->task(':build', function($directories) {
+        $directories->create('build');
+        system("vendor/bin/phpunit --coverage-html build/coverage 2>&1");
+        system("vendor/bin/behat --format=html > build/specs.html");
+        system("vendor/bin/behat -p acceptance --format=html > build/acceptance.html");
+    }),
 );

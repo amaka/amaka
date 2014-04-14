@@ -119,6 +119,11 @@ class AmakaScript implements \IteratorAggregate
         return $this->list->contains($element);
     }
 
+    public function isEmpty()
+    {
+        return $this->list->isEmpty();
+    }
+
     /**
      * Return the list as the iterable object
      *

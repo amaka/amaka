@@ -8,7 +8,7 @@ use Officine\Amaka\Specs\EndToEndSpecContext;
 
 require_once 'PHPUnit/Framework/Assert/Functions.php';
 
-class ScriptLoadingContext extends EndToEndSpecContext
+class ScriptAndTaskLoadingContext extends EndToEndSpecContext
 {
     private $scriptsCreated = [];
 
@@ -45,6 +45,15 @@ class ScriptLoadingContext extends EndToEndSpecContext
         } else {
             assertContains($needle, $haystack);
         }
+    }
+
+    /**
+     * @Then /^the output on the screen should not contain "([^"]*)"$/
+     */
+    public function theOutputOnTheScreenShouldNotContain($needle)
+    {
+        $haystack = $this->getCollectedOutput();
+        assertNotContains($needle, $haystack);
     }
 
     /**

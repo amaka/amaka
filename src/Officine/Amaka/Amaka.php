@@ -37,6 +37,7 @@ class Amaka
     private $amakaScript;
     private $pluginBroker;
     private $defaultScriptName = 'Amkfile';
+    private $defaultTaskName = ':default';
 
     public function __construct($defaultName = null, Context $context = null)
     {
@@ -154,23 +155,19 @@ class Amaka
      * @param string $candidateTask [optional]
      * @return string|false
      */
-    public function taskSelector($candidateTask = null)
+    public function taskSelector($candidateTask = false)
     {
-        $hasDefaultTask = $this->amakaScript->has(':default');
-        // shortcircuits the call to has() when $candidateTask = null
+        $hasDefaultTask = $this->amakaScript->has($this->defaultTaskName);
         $hasDesiredTask = $candidateTask && $this->amakaScript->has($candidateTask);
 
         if ($candidateTask) {
             if ($hasDesiredTask) {
                 return $candidateTask;
             }
-            if ($hasDefaultTask) {
-                return ':default';
-            }
         }
 
         if ($hasDefaultTask) {
-            return ':default';
+            return $this->defaultTaskName;
         }
 
         return false;
@@ -181,18 +178,18 @@ class Amaka
      *
      * @param string $startTask The initial task we want to run
      */
-    public function run($startTask)
+    public function run($selectedStartTask)
     {
         $as = $this->amakaScript;
-        $startTask = $this->taskSelector($startTask);
+        $startTask = $this->taskSelector($selectedStartTask);
 
-        if (false === $startTask) {
+        if (!$startTask && (! $selectedStartTask || $as->isEmpty())) {
             throw new \RuntimeException("No task to run");
         }
 
-        if (null === $as->get($startTask)) {
+        if ($selectedStartTask && ! $as->get($selectedStartTask)) {
             throw new UndefinedTaskException(
-                "Task '{$startTask}' was not defined in the amaka script."
+                "Task '{$selectedStartTask}' was not found in the amaka script."
             );
         }
 
