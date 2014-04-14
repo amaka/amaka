@@ -6,4 +6,5 @@
  * @copyright Copyright (c) 2014 Andrea Turso
  * @author    Andrea Turso <andrea.turso@gmail.com>
  */
-require_once __DIR__ . '/../../src/bootstrap.php';
+
+$loader = include __DIR__ . '/../../src/bootstrap.php';

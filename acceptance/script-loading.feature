@@ -1,7 +1,7 @@
-Feature: Amaka error handling and Reporting
-  In order to understand what Amaka is doing internally
-  As a end-user
-  I want to be told what the error was and what to do next
+Feature: Amaka script loading mechanism
+  In order to run a task Amaka first needs to load a script
+  As a developer
+  I want to unserstand how Amaka behaves when loading scripts
 
   Background:
     Given amaka executable is in "bin/amaka"

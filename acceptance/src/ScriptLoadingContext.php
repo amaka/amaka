@@ -8,7 +8,7 @@ use Officine\Amaka\Specs\EndToEndSpecContext;
 
 require_once 'PHPUnit/Framework/Assert/Functions.php';
 
-class ErrorHandlingContext extends EndToEndSpecContext
+class ScriptLoadingContext extends EndToEndSpecContext
 {
     private $scriptsCreated = [];
 
