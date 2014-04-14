@@ -3,7 +3,7 @@
  * OfficineSoftware Amaka
  *
  * @license   http://www.opensource.org/licenses/bsd-license.php
- * @copyright Copyright (c) 2012 Andrea Turso
+ * @copyright Copyright (c) 2013-2014 Andrea Turso
  * @author    Andrea Turso <andrea.turso@gmail.com>
  */
 namespace Officine\Ois\Tests\Amaka;
@@ -19,7 +19,7 @@ use Officine\Amaka\Context;
  *
  * @group     amaka
  * @licese    http://www.opensource.org/licenses/bsd-license.php
- * @copyright Copyright (c) 2012 Andrea Turso
+ * @copyright Copyright (c) 2013-2014 Andrea Turso
  * @author    Andrea Turso <andrea.turso@gmail.com>
  */
 class AmakaTest extends TestCase
