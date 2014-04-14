@@ -17,11 +17,11 @@ use PHP_Timer as Timer;
 abstract class AbstractRunner
 {
     /**
-     * The Buildfile DAG
+     * The AmakaScript DAG
      *
      * @var Officine\Amaka\AmakaScript\AmakaScript
      */
-    private $buildfile;
+    private $amakaScript;
 
     /**
      * Duration of the build process microseconds
@@ -30,9 +30,9 @@ abstract class AbstractRunner
      */
     private $duration = 0;
 
-    public function __construct(AmakaScript $buildfile)
+    public function __construct(AmakaScript $amakaScript)
     {
-        $this->buildfile = $buildfile;
+        $this->amakaScript = $amakaScript;
     }
 
     /**
@@ -42,11 +42,10 @@ abstract class AbstractRunner
      */
     public function run($startTask)
     {
-        $amakaScript = $this->buildfile;
+        $amakaScript = $this->amakaScript;
 
         $startTask = $amakaScript->get($startTask);
-        $nodes = $this->buildfile->get($startTask)
-                                 ->getAdjacencyList();
+        $nodes = $startTask->getAdjacencyList();
 
         Timer::start();
         foreach ($nodes as $prerequisite) {
