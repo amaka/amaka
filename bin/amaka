@@ -14,6 +14,19 @@ use Officine\Amaka\Amaka;
 use Officine\Amaka\Context\CliContext;
 use Officine\Amaka\FailedBuildException;
 use Officine\Amaka\AmakaScript\AmakaScriptNotFoundException;
+use Officine\Amaka\ErrorReporting\Trigger;
+use Officine\Amaka\ErrorReporting\Reporter;
+
+$print = function($string) {
+    echo $string;
+};
+$printLine = function($line) {
+    echo $line . PHP_EOL;
+};
+
+$reporter = new Reporter();
+$reporter->setPrintFunction($print);
+$reporter->setPrintLineFunction($printLine);
 
 $getopt = new Getopt(array(
     'f=s'    => 'Load the specified amaka script',
@@ -33,14 +46,14 @@ if (isset($opts->f)) {
 }
 
 if (isset($opts->help)) {
-    echo $opts->getUsageMessage();
-    die(0);
+    $printLine($opts->getUsageMessage());
+    exit(0);
 }
 
 // Handle the creation of the new script
 if (isset($opts->init)) {
     if (file_exists('Amkfile')) {
-        echo "An 'Amkfile' is already present in this project. Aborting." . PHP_EOL;
+        $printLine("An 'Amkfile' is already present in this project. Doing nothing.");
     } else {
         $script = <<<AMK_SCRIPT
 <?php
@@ -58,10 +71,10 @@ return array(
 );
 AMK_SCRIPT;
             if (file_put_contents('Amkfile', $script)) {
-                echo "The new 'Amkfile' script has been created successfully." . PHP_EOL;
-                echo "Now you can run the hello world task with 'amaka :hello-world'" . PHP_EOL;
+                $printLine("The new 'Amkfile' script has been created successfully.");
+                $printLine("Now you can run the hello world task with 'amaka :hello-world'");
             } else {
-                echo "Could not create the 'Amkfile' script." . PHP_EOL;
+                $printLine("Could not create the 'Amkfile' script.");
             }
         }
         return;
@@ -71,32 +84,24 @@ try {
     $context = new CliContext();
     $context->setParam('args', $args);
 
-    $amaka = new Amaka($scriptName, $context);
-    $amaka->loadAmakaScript();
+    $amaka = new Amaka('Amkfile', $context);
+    $amaka->loadAmakaScript($scriptName);
 
-    echo "(Loaded '{$amaka->getAmakaScript()}')\n";
+    $printLine("(Loaded '{$amaka->getAmakaScript()}')");
 
     if (isset($opts->l)) {
         $script = $amaka->getAmakaScript();
         foreach ($script as $task) {
-            echo $task->getName() . PHP_EOL;
+            $printLine($task->getName());
         }
         return;
     }
 
     if ($task) {
-        echo "(Task '$task')\n";
+        $printLine("(Task '$task')");
     }
     $amaka->run($task);
-} catch (AmakaScriptNotFoundException $e) {
-    if (isset($opts->f)) {
-        throw $e;
-    }
-    echo "Error: No amaka scripts to load found.\n";
-    echo "Generate a default amaka script using the `--init' option.\n";
-
-    exit(1);
 } catch(Exception $e) {
-    echo "Fatal (" . get_class($e) . "): {$e->getMessage()}\n";
+    $reporter->handleException($e);
     exit(1);
 }

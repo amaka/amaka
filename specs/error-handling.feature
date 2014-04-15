@@ -6,7 +6,6 @@ Feature: Amaka Error Handling
   In order to provide the end-user with friendly and consistent
   error messages.
 
-  Background:
   Scenario: Generating and printing errors
     Given that "Example error." is encountered
     And this error has a message that says

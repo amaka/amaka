@@ -60,7 +60,7 @@ class AmakaScriptTest extends \PHPUnit_Framework_TestCase implements Invocable
 
     /**
      * @test
-     * @expectedException Officine\Amaka\AmakaScript\AmakaScriptNotFoundException
+     * @expectedException Officine\Amaka\ErrorReporting\Error
      */
     public function should_throw_when_creating_from_non_existing_file()
     {

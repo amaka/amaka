@@ -14,10 +14,10 @@ Feature: Amaka task loading
     """
     <?php return [
         $amaka->task(':example-task', function() {
-            echo 'EXAMPLE';
+            echo 'EXAMPLTE_TASK';
         }),
         $amaka->task(':default', function() {
-            echo 'DEFAULT';
+            echo 'DEFAULT_TASK';
         })];
     """
 
@@ -25,28 +25,28 @@ Feature: Amaka task loading
     """
     <?php return [
         $amaka->task(':example-task', function() {
-            echo 'EXAMPLE';
+            echo 'EXAMPLTE_TASK';
         })];
     """
 
     Scenario: task is provided, script is empty
      When I run amaka with arguments "-f EmptyScript.amk :a-task"
-     Then the output on the screen should contain "No task to run"
+     Then the output on the screen should contain "No tasks to run"
 
     Scenario: task is not provided, script is empty
      When I run amaka with arguments "-f EmptyScript.amk"
-     Then the output on the screen should contain "No task to run"
+     Then the output on the screen should contain "No tasks to run"
 
     Scenario: task is provided, task can be found, there is no default task
      When I run amaka with arguments "-f ScriptNoDefault.amk :example-task"
      Then the output on the screen should contain "(Task ':example-task')"
-     Then the output on the screen should contain "EXAMPLE"
+     Then the output on the screen should contain "EXAMPLTE_TASK"
 
     Scenario: task is provided, task can be found, there is default task
      When I run amaka with arguments "-f ScriptWithDefault.amk :example-task"
      Then the output on the screen should contain "(Task ':example-task')"
-     And the output on the screen should contain "EXAMPLE"
-     And the output on the screen should not contain "DEFAULT"
+     And the output on the screen should contain "EXAMPLTE_TASK"
+     And the output on the screen should not contain "DEFAULT_TASK"
 
     Scenario: task is provided, task can not be found, there is default task
      When I run amaka with arguments "-f ScriptWithDefault.amk :foo-task"
@@ -58,8 +58,9 @@ Feature: Amaka task loading
 
     Scenario: task is not provided, there is no default task
      When I run amaka with arguments "-f ScriptNoDefault.amk"
-     Then the output on the screen should contain "No task to run"
+     Then the output on the screen should contain "No tasks to run"
+     Then the output on the screen should contain "You could declare a ':default' in the script."
 
     Scenario: task is not provided, there is default task
      When I run amaka with arguments "-f ScriptWithDefault.amk"
-     Then the output on the screen should contain "DEFAULT"
+     Then the output on the screen should contain "DEFAULT_TASK"

@@ -8,7 +8,7 @@
  */
 namespace Officine\Amaka\AmakaScript;
 
-use Exception;
+use Officine\Amaka\ErrorReporting\Error;
 
 /**
  * Amaka undefined exception class
@@ -17,6 +17,6 @@ use Exception;
  * @copyright Copyright (c) 2013-2014 Andrea Turso
  * @author    Andrea Turso <andrea.turso@gmail.com>
  */
-class UndefinedTaskException extends Exception
+class UndefinedTaskException extends Error
 {
 }

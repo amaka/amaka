@@ -16,7 +16,7 @@ class ErrorFormatter
             $buffer[] = self::formatColumn('Message', $error->getLongMessage());
         }
 
-        if ($error instanceof Failure) {
+        if ($error instanceof Failure && $error->getLine()) {
             $buffer[] = self::formatColumn('Location', self::formatErrorLocation($error));
         }
 

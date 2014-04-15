@@ -8,6 +8,8 @@
  */
 namespace Officine\Amaka;
 
-class FailedBuildException extends \Exception
+use Officine\Amaka\ErrorReporting\Failure;
+
+class FailedBuildException extends Failure
 {
 }

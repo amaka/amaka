@@ -7,9 +7,9 @@ class AmakaScriptLoadingLoadingTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @test
-     * @expectedException Officine\Amaka\AmakaScript\AmakaScriptNotFoundException
+     * @expectedException Officine\Amaka\ErrorReporting\Failure
      */
-    public function loading_non_existing_amaka_script_should_throw()
+    public function loading_non_existing_amaka_script_should_trigger_failure()
     {
         $amaka = new Amaka();
         $amaka->loadAmakaScript('foo');

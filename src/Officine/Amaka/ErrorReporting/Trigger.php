@@ -51,6 +51,18 @@ class Trigger
         return $this;
     }
 
+    public function addResolution($resolution)
+    {
+        if (is_array($resolution)) {
+            list($title, $message) = each($resolution);
+            $this->resolutions[$title] = $message;
+        } else {
+            $this->resolutions[] = $resolution;
+        }
+
+        return $this;
+    }
+
     public function trigger()
     {
         throw $this->build();
@@ -70,6 +82,14 @@ class Trigger
         }
 
         return $this->triggeringError;
+    }
+
+    public static function fromException(\Exception $e)
+    {
+        return self::error()
+            ->setMessage($e->getMessage())
+            ->setFileName($e->getFile())
+            ->setFileLine($e->getLine());
     }
 
     public static function error($message = "", $longMessage = "", $resolutions = [])

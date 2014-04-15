@@ -13,6 +13,7 @@ use Officine\Amaka\InvocablesList;
 use Officine\Amaka\PluginBroker;
 use Officine\Amaka\Task\FileTaskBuilder;
 use Officine\Amaka\Task\DefaultTaskBuilder;
+use Officine\Amaka\ErrorReporting\Trigger;
 
 /**
  * @author Andrea Turso <andrea.turso@gmail.com>
@@ -210,15 +211,22 @@ class AmakaScript implements \IteratorAggregate
     /**
      *
      */
-    public function loadFromFile($fileName)
+    public function loadFromFile($__fileName)
     {
-        if (! file_exists($fileName)) {
-            throw new AmakaScriptNotFoundException($fileName);
+        if (! file_exists($__fileName)) {
+            $error = Trigger::errorFromException(new AmakaScriptNotFoundException($__fileName));
+            $error->addResolution('Check')
+                  ->trigger();
         }
 
-        $this->scriptId = $fileName;
         $amaka = $this;
-        return $this->loadFromArray(include $fileName);
+        $fetchScriptStructure = function() use ($amaka, $__fileName) {
+            return include $__fileName;
+        };
+
+        $this->scriptId = $__fileName;
+        $scriptStructure = $fetchScriptStructure();
+        return $this->loadFromArray(is_array($scriptStructure) ? $scriptStructure : []);
     }
 
     public function __toString()

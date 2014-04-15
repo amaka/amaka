@@ -23,6 +23,8 @@ use Officine\Amaka\Plugin\TaskArgs;
 use Officine\Amaka\Plugin\Directories;
 use Officine\Amaka\Plugin\TokenReplacement;
 
+use Officine\Amaka\ErrorReporting\Trigger;
+
 /**
  * Amaka Build Automation System Façade
  *
@@ -116,20 +118,29 @@ class Amaka
         if (! $scriptName) {
             $scriptName = $this->defaultScriptName;
         }
+        $scriptPath = $this->createAmakaScriptPath($scriptName);
+        $usingDefault = $scriptName == $this->defaultScriptName;
 
-        $scriptPath = $scriptName;
-        if (is_string($scriptName)) {
-            $scriptPath = $this->createAmakaScriptPath($scriptName);
+        if (! file_exists($scriptPath)) {
+            $fail = Trigger::failure("Amaka script '$scriptPath' not found.");
+            $fail->addResolution("Amaka can autoload a default script every time it's run.");
+            $fail->addResolution('Run Amaka with the --init option to generate one from a template.');
+
+            if ($usingDefault) {
+                $fail->setMessage('Amaka could not find any script script to load');
+            } else {
+                $fail->addResolution("Or, make sure you've typed the path to the right file when using the -f option.");
+            }
+            $fail->trigger();
         }
-        $script = new AmakaScript();
-
         // we need to remove the coupling between Amaka, the PluginBroker and the AmakaScript classes
         // We'll refactor and apply IoC for the TaskBuilder to accept its own reference of the pluginBroker.
+        $script = new AmakaScript();
         $script->setPluginBroker($this->pluginBroker);
-
-        $script->load($scriptPath);
+        $script->loadFromFile($scriptPath);
 
         $this->setAmakaScript($script);
+
         return $script;
     }
 
@@ -183,11 +194,14 @@ class Amaka
         $as = $this->amakaScript;
         $startTask = $this->taskSelector($selectedStartTask);
 
-        if (!$startTask && (! $selectedStartTask || $as->isEmpty())) {
-            throw new \RuntimeException("No task to run");
+        if (! $startTask && (! $selectedStartTask || $as->isEmpty())) {
+            $error = Trigger::error('No tasks to run');
+            $error->addResolution("You could declare a ':default' in the script.");
+            $error->trigger();
         }
 
         if ($selectedStartTask && ! $as->get($selectedStartTask)) {
+            $error = Trigger::error();
             throw new UndefinedTaskException(
                 "Task '{$selectedStartTask}' was not found in the amaka script."
             );
