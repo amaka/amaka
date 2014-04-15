@@ -163,11 +163,11 @@ class AmakaTest extends TestCase
     }
 
     /**
-     * @expectedException \RuntimeException
+     * @expectedException \Officine\Amaka\ErrorReporting\Error
      */
     public function testRunningEmptyTaskThrows()
     {
-        $this->amaka->run('');
+        $this->amaka->run(null);
     }
 
     public function _testTaskPrerequisitesAreInvoked()

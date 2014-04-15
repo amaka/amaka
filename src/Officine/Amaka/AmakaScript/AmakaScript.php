@@ -214,7 +214,7 @@ class AmakaScript implements \IteratorAggregate
     public function loadFromFile($__fileName)
     {
         if (! file_exists($__fileName)) {
-            $error = Trigger::errorFromException(new AmakaScriptNotFoundException($__fileName));
+            $error = Trigger::fromException(new AmakaScriptNotFoundException($__fileName));
             $error->addResolution('Check')
                   ->trigger();
         }
