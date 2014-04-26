@@ -59,7 +59,7 @@ Feature: Amaka task loading
     Scenario: task is not provided, there is no default task
      When I run amaka with arguments "-f ScriptNoDefault.amk"
      Then the output on the screen should contain "No tasks to run"
-     Then the output on the screen should contain "You could declare a ':default' in the script."
+     Then the output on the screen should contain "Write a task called ':default' in your script:"
 
     Scenario: task is not provided, there is default task
      When I run amaka with arguments "-f ScriptWithDefault.amk"

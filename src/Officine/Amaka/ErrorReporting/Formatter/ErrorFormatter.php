@@ -24,11 +24,10 @@ class ErrorFormatter
             $buffer[] = self::formatSectionHeader('Troubleshooting');
 
             foreach ($error->getResolutions() as $resolution) {
-                if (is_array($resolution)) {
-                    list($title, $message) = each($resolution);
-                    $buffer[] = sprintf("- %s\n%s", $title, $message);
+                if ($resolution->getDescription()) {
+                    $buffer[] = sprintf("- %s\n%s", $resolution->getName(), $resolution->getDescription());
                 } else {
-                    $buffer[] = sprintf("- %s", $resolution);
+                    $buffer[] = sprintf("- %s", $resolution->getName());
                 }
             }
         }

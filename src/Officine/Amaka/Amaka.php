@@ -189,29 +189,48 @@ class Amaka
      *
      * @param string $startTask The initial task we want to run
      */
-    public function run($selectedStartTask)
+    public function run($targetTask)
     {
         $as = $this->amakaScript;
-        $startTask = $this->taskSelector($selectedStartTask);
+        $startTask = $this->taskSelector($targetTask);
 
-        if (! $startTask && (! $selectedStartTask || $as->isEmpty())) {
+        // The task selection logic returned false
+        // no target task given by the user
+        // and the script loaded was empty
+        // Because one can't simply walk into Mordor.
+        if (! $startTask && (! $targetTask || $as->isEmpty())) {
             $error = Trigger::error('No tasks to run');
-            $error->addResolution("You could declare a ':default' in the script.");
+            $error->addResolution([
+                "Write a task called ':default' in your script:"
+                => "Next time Amaka is run without a target task "
+                .  "it will run this one instead of showing an error."
+            ]);
             $error->trigger();
         }
 
-        if ($selectedStartTask && ! $as->get($selectedStartTask)) {
+        // A target task was provided by the user,
+        // but it could not be found inside the loaded script.
+        // Perhaps the guy has mistyped its name, or something
+        // we don't know.
+        if ($targetTask && ! $as->get($targetTask)) {
             $error = Trigger::error();
-            throw new UndefinedTaskException(
-                "Task '{$selectedStartTask}' was not found in the amaka script."
-            );
+            $error->fromException(new UndefinedTaskException());
+            $error->setMessage("Task '{$targetTask}' was not found in the amaka script.");
+            $error->trigger();
         }
 
         $detector = new CycleDetector($as);
         $runner   = new StandardRunner($as);
 
         if (! $detector->isValid($startTask)) {
-            throw $detector->getExceptionClass();
+            $error = Trigger::error(
+                'Cycle detected',
+                "The execution was interrupted because '{$startTask}'"
+                . " or one of its dependant tasks are creating a cycle."
+            )
+                ->addResolution("Check if '{$startTask}' depends on itself.")
+                ->addResolution("Check if any of the tasks required by '{$startTask}' either depend on '{$startTask}'.")
+                ->trigger();
         }
 
         $runner->run($startTask);

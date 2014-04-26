@@ -7,11 +7,12 @@ class Trigger
     const AMAKA_ERROR = 'error';
     const AMAKA_FAILURE = 'failure';
 
+    use ResolutionTrait;
+
     private $message;
     private $longMessage;
     private $fileName;
     private $fileLine;
-    private $resolutions = [];
 
     private $triggeringError;
     private $triggeringErrorType;
@@ -45,24 +46,6 @@ class Trigger
         return $this;
     }
 
-    public function setResolutions($resolutions)
-    {
-        $this->resolutions = $resolutions;
-        return $this;
-    }
-
-    public function addResolution($resolution)
-    {
-        if (is_array($resolution)) {
-            list($title, $message) = each($resolution);
-            $this->resolutions[$title] = $message;
-        } else {
-            $this->resolutions[] = $resolution;
-        }
-
-        return $this;
-    }
-
     public function trigger()
     {
         throw $this->build();
@@ -75,10 +58,20 @@ class Trigger
         }
 
         if (self::AMAKA_ERROR == $this->triggeringErrorType) {
-            $this->triggeringError = new Error($this->message, $this->longMessage, $this->resolutions);
+            $this->triggeringError = new Error(
+                $this->message,
+                $this->longMessage,
+                $this->getResolutions());
         }
+
         if (self::AMAKA_FAILURE == $this->triggeringErrorType) {
-            $this->triggeringError = new Failure($this->message, $this->longMessage, $this->resolutions, $this->fileName, $this->fileLine);
+            $this->triggeringError = new Failure(
+                $this->message,
+                $this->longMessage,
+                $this->getResolutions(),
+                $this->fileName,
+                $this->fileLine
+            );
         }
 
         return $this->triggeringError;
@@ -97,7 +90,7 @@ class Trigger
         $error = new self(self::AMAKA_ERROR);
         return $error->setMessage($message)
                      ->setLongMessage($longMessage)
-                     ->setResolutions($resolutions);
+                     ->addResolutions($resolutions);
     }
 
     public static function failure($message = "", $longMessage = "", $resolutions = [])
@@ -105,6 +98,6 @@ class Trigger
         $failure = new self(self::AMAKA_FAILURE);
         return $failure->setMessage($message)
                        ->setLongMessage($longMessage)
-                       ->setResolutions($resolutions);
+                       ->addResolutions($resolutions);
     }
 }
