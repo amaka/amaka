@@ -38,9 +38,7 @@ class AmakaScript implements \IteratorAggregate
      */
     private $taskBuilder;
 
-    private $scriptId;
-
-    private static $scriptIdCounter = 1;
+    private $scriptFileName = 'NFF';
 
     public function __construct($source = null)
     {
@@ -48,8 +46,6 @@ class AmakaScript implements \IteratorAggregate
 
         $this->fileBuilder = new FileTaskBuilder();
         $this->taskBuilder = new DefaultTaskBuilder();
-
-        $this->scriptId = __CLASS__ . '#' . self::$scriptIdCounter++;
 
         $this->load($source);
     }
@@ -136,6 +132,42 @@ class AmakaScript implements \IteratorAggregate
     }
 
     /**
+     * Load a buildfile from an array or file
+     */
+    public function load($fileOrArray)
+    {
+        if (null === $fileOrArray) {
+            return;
+        }
+
+        if (is_array($fileOrArray)) {
+            return $this->loadFromArray($fileOrArray);
+        }
+        return $this->loadFromFile($fileOrArray);
+    }
+
+    /**
+     * Iteratively adds the elements in #$array# to the Buildfile
+     *
+     * This method is intended for internal use within the
+     * loadFromFile, any use form other client classes is discouraged.
+     *
+     * @param array $array
+     * @return $this
+     */
+    public function loadFromArray(array $array)
+    {
+        if (! empty($array)) {
+            $buildfile = $this;
+            array_map(function($invocable) use ($buildfile) {
+                $buildfile->add($invocable);
+            }, $array);
+        }
+
+        return $this;
+    }
+
+    /**
      * Create and return a built-in or action task.
      *
      * @param Invocable|string $task
@@ -173,42 +205,6 @@ class AmakaScript implements \IteratorAggregate
     }
 
     /**
-     * Load a buildfile from an array or file
-     */
-    public function load($fileOrArray)
-    {
-        if (null === $fileOrArray) {
-            return;
-        }
-
-        if (is_array($fileOrArray)) {
-            return $this->loadFromArray($fileOrArray);
-        }
-        return $this->loadFromFile($fileOrArray);
-    }
-
-    /**
-     * Iteratively adds the elements in #$array# to the Buildfile
-     *
-     * This method is intended for internal use within the
-     * loadFromFile, any use form other client classes is discouraged.
-     *
-     * @param array $array
-     * @return $this
-     */
-    public function loadFromArray(array $array)
-    {
-        if (! empty($array)) {
-            $buildfile = $this;
-            array_map(function($invocable) use ($buildfile) {
-                $buildfile->add($invocable);
-            }, $array);
-        }
-
-        return $this;
-    }
-
-    /**
      *
      */
     public function loadFromFile($__fileName)
@@ -218,19 +214,25 @@ class AmakaScript implements \IteratorAggregate
             $error->addResolution('Check')
                   ->trigger();
         }
-
         $amaka = $this;
         $fetchScriptStructure = function() use ($amaka, $__fileName) {
             return include $__fileName;
         };
 
-        $this->scriptId = $__fileName;
-        $scriptStructure = $fetchScriptStructure();
-        return $this->loadFromArray(is_array($scriptStructure) ? $scriptStructure : []);
+        $table = new DispatchTable();
+        $scriptScope = new ScriptScope($table);
+
+        $table->expose('task', [$this, 'task']);
+
+        $bareScriptScope = $fetchScriptStructure->bindTo($scriptScope);
+        $script = $bareScriptScope();
+
+        $this->scriptFileName = $__fileName;
+        return $this->loadFromArray(is_array($script) ? $script : []);
     }
 
     public function __toString()
     {
-        return $this->scriptId;
+        return $this->scriptFileName;
     }
 }
