@@ -13,6 +13,8 @@ use Officine\Amaka\InvocablesList;
 use Officine\Amaka\Task\Task;
 use Officine\Amaka\PluginBroker;
 use Officine\Amaka\ErrorReporting\Trigger;
+use Officine\Amaka\Operation\TaskOperation;
+use Officine\Amaka\Operation\FinderOperation;
 
 /**
  * @author Andrea Turso <andrea.turso@gmail.com>
@@ -41,6 +43,7 @@ class AmakaScript implements \IteratorAggregate
 
         $this->dispatchTable = new DispatchTable();
         $this->dispatchTable->expose('task', new TaskOperation($this->symbolTable));
+        $this->dispatchTable->expose('finder', new FinderOperation($this->symbolTable));
 
         $this->scriptScope = new ScriptScope($this->dispatchTable);
 

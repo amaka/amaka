@@ -25,7 +25,7 @@ class DispatchTableTest extends TestCase
     public function testAddObjectHandlerOperation()
     {
         $operation = $this->getMock(
-            '\Officine\Amaka\AmakaScript\OperationInterface',
+            '\Officine\Amaka\Operation\OperationInterface',
             ['invoke']
         );
         $arguments = ['a', 1];

@@ -2,6 +2,8 @@
 
 namespace Officine\Amaka\AmakaScript;
 
+use Officine\Amaka\Operation\OperationInterface;
+
 class DispatchTable
 {
     private $operations = [];

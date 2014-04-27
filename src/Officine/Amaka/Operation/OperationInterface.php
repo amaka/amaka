@@ -1,6 +1,6 @@
 <?php
 
-namespace Officine\Amaka\AmakaScript;
+namespace Officine\Amaka\Operation;
 
 interface OperationInterface
 {
