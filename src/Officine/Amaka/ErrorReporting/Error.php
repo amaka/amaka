@@ -15,11 +15,17 @@ class Error extends \Exception implements ErrorInterface
         parent::__construct($message, 0, $previous);
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getLongMessage()
     {
         return $this->longMessage;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getResolutions()
     {
         return $this->resolutions;

@@ -17,11 +17,17 @@ class Failure extends \ErrorException implements ErrorInterface
         parent::__construct($message, 0, 1, $fileName, $fileLine, $previous);
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getLongMessage()
     {
         return $this->longMessage;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getResolutions()
     {
         return $this->resolutions;

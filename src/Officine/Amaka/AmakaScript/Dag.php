@@ -110,6 +110,7 @@ class Dag extends AbstractDirectedGraph
  * @group util
  * @stable
  * @SuppressWarnings(PHPMD)
+ * @codeCoverageIgnore
  */
 abstract class AbstractDirectedGraph {
 
