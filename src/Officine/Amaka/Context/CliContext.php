@@ -10,6 +10,9 @@ namespace Officine\Amaka\Context;
 
 class CliContext extends \Officine\Amaka\Context
 {
+    /**
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
+     */
     public function __construct()
     {
         parent::__construct();

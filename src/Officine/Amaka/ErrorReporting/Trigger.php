@@ -2,6 +2,9 @@
 
 namespace Officine\Amaka\ErrorReporting;
 
+/**
+ * @SuppressWarnings(PHPMD.ConstructorWithNameAsEnclosingClass)
+ */
 class Trigger
 {
     const AMAKA_ERROR = 'error';

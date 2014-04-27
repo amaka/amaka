@@ -7,7 +7,7 @@ namespace Officine\Amaka\AmakaScript;
  */
 class CycleDetectionException extends BuildfileException
 {
-    public function __construct($cycles, $code = 0, Exception $previous = null)
+    public function __construct($cycles)
     {
         $cycles  = implode(', ', end($cycles));
         parent::__construct("Cycles detected: {$cycles}.");

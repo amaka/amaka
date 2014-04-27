@@ -27,7 +27,7 @@ class AmakaScript implements \IteratorAggregate
      * @var Officine\Amaka\InvocablesList
      */
     private $invocablesList;
-    private $scroptScope;
+    private $scriptScope;
     private $pluginBroker;
     private $symbolTable;
     private $dispatchTable;
@@ -74,7 +74,9 @@ class AmakaScript implements \IteratorAggregate
     }
 
     /**
-     *
+     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
+     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
+     * @SuppressWarnings(PHPMD.CamelCaseParameterName)
      */
     public function loadFromFile($__fileName)
     {
@@ -85,6 +87,7 @@ class AmakaScript implements \IteratorAggregate
         }
 
         $amaka = $this->scriptScope;
+
         $fetchScriptStructure = function() use ($amaka, $__fileName) {
             return include $__fileName;
         };
