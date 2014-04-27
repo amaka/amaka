@@ -213,10 +213,11 @@ class Amaka
         // Perhaps the guy has mistyped its name, or something
         // we don't know.
         if ($targetTask && ! $as->get($targetTask)) {
-            $error = Trigger::error();
-            $error->fromException(new UndefinedTaskException());
-            $error->setMessage("Task '{$targetTask}' was not found in the amaka script.");
-            $error->trigger();
+            $error = Trigger::error()
+                ->fromException(new UndefinedTaskException(
+                    "Task '{$targetTask}' was not found in the amaka script."
+                ))->addResolution("Check that you've typed the name of the task correcly.")
+                ->trigger();
         }
 
         $detector = new CycleDetector($as);
@@ -227,10 +228,9 @@ class Amaka
                 'Cycle detected',
                 "The execution was interrupted because '{$startTask}'"
                 . " or one of its dependant tasks are creating a cycle."
-            )
-                ->addResolution("Check if '{$startTask}' depends on itself.")
-                ->addResolution("Check if any of the tasks required by '{$startTask}' either depend on '{$startTask}'.")
-                ->trigger();
+            )->addResolution("Check if '{$startTask}' depends on itself.")
+             ->addResolution("Check if any of the tasks required by '{$startTask}' either depend on '{$startTask}'.")
+             ->trigger();
         }
 
         $runner->run($startTask);

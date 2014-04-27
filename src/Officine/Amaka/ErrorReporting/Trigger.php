@@ -14,6 +14,7 @@ class Trigger
     private $fileName;
     private $fileLine;
 
+    private $previousException;
     private $triggeringError;
     private $triggeringErrorType;
 
@@ -46,6 +47,12 @@ class Trigger
         return $this;
     }
 
+    public function setPreviousException(\Exception $previous)
+    {
+        $this->previousException = $previous;
+        return $this;
+    }
+
     public function trigger()
     {
         throw $this->build();
@@ -61,7 +68,9 @@ class Trigger
             $this->triggeringError = new Error(
                 $this->message,
                 $this->longMessage,
-                $this->getResolutions());
+                $this->getResolutions(),
+                $this->previousException
+            );
         }
 
         if (self::AMAKA_FAILURE == $this->triggeringErrorType) {
@@ -70,7 +79,8 @@ class Trigger
                 $this->longMessage,
                 $this->getResolutions(),
                 $this->fileName,
-                $this->fileLine
+                $this->fileLine,
+                $this->previousException
             );
         }
 
@@ -80,6 +90,7 @@ class Trigger
     public static function fromException(\Exception $e)
     {
         return self::error()
+            ->setPreviousException($e)
             ->setMessage($e->getMessage())
             ->setFileName($e->getFile())
             ->setFileLine($e->getLine());
