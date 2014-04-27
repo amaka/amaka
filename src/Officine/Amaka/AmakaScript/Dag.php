@@ -2,8 +2,6 @@
 
 namespace Officine\Amaka\AmakaScript;
 
-use Officine\Amaka\AmakaScript\AmakaScript;
-
 /**
  * This class can be used to build a graph representation of any given
  * amaka script useful for determining if a circular dependency between
@@ -15,11 +13,11 @@ class Dag extends AbstractDirectedGraph
 {
     private $loaded = false;
     private $cycles = array();
-    private $buildfile;
+    private $table;
 
-    public function __construct(AmakaScript $buildfile)
+    public function __construct(SymbolTable $table)
     {
-        $this->buildfile = $buildfile;
+        $this->table = $table;
         // Note: we call load here for backward compatibility reasons.
         // Remove this line and refactor test cases and classes before
         // moving on to other stuff.
@@ -36,59 +34,25 @@ class Dag extends AbstractDirectedGraph
         if ($this->loaded) {
             return;
         }
-
-        if (! $this->buildfile->getIterator()) {
-            return;
-        }
-
-        $buildfile = $this->buildfile;
-        foreach ($buildfile as $node) {
-            $adj = $node->getAdjacencyList();
-            foreach ($node->getAdjacencyList() as $t) {
-                if (! $this->buildfile->has($t)) {
-                    $adj = array();
-                }
-            }
-
-            $this->addNodes(array(
-                $node->getName() => $adj,
-            ));
+        foreach ($this->table->getAllSymbols() as $sName => $sRequisites) {
+            $this->addNodes([$sName => $sRequisites]);
         }
         $this->loaded = true;
     }
 
-    public function loadEdges(array $tasks)
+    public function loadEdges(array $symbolsNames)
     {
-        // invocable identifier -> string
-        $n = function($t) {
-            return is_string($t) ? $t : $t->getName();
-        };
-        // string -> array
-        $buildfile = $this->buildfile;
-        $f = function($t) use ($buildfile) {
-            return $buildfile->get($t) ?: array();
-        };
-
-        $results = array();
-        foreach ($tasks as $task) {
-            $results[] = array($n($task) => $f($n));
-        }
-        return $results;
+        return $this->table->getAllSymbols();
     }
 
     public function isValid($wEntry = null)
     {
-        // invocable identifier -> string
-        $n = function($t) {
-            return is_string($t) ? $t : $t->getName();
-        };
-
         $this->loadGraph();
 
         // Detect cycles in the entire graph
         if (! $wEntry) {
-            foreach ($this->buildfile as $entry) {
-                if (! $this->isValid($n($entry))) {
+            foreach ($this->table->getAllSymbols() as $sName => $sRequisites) {
+                if (! $this->isValid($sName)) {
                     return false;
                 }
             }

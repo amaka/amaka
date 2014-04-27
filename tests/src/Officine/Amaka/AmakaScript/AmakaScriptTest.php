@@ -9,7 +9,9 @@
 use Officine\Amaka\Invocable;
 use Officine\Amaka\AmakaScript\AmakaScript;
 
-class AmakaScriptTest extends \PHPUnit_Framework_TestCase implements Invocable
+use PHPUnit_Framework_TestCase as TestCase;
+
+class AmakaScriptTest extends TestCase implements Invocable
 {
     public function setUp()
     {
@@ -65,29 +67,6 @@ class AmakaScriptTest extends \PHPUnit_Framework_TestCase implements Invocable
     public function should_throw_when_creating_from_non_existing_file()
     {
         new AmakaScript(__DIR__ . '/_files/bogus/Amkfile');
-    }
-
-    /**
-     * @test
-     */
-    public function should_create_configured_DefaultTaskBuilder()
-    {
-        $this->assertInstanceOf(
-            '\Officine\Amaka\Task\DefaultTaskBuilder',
-            $this->script->task('example')
-        );
-    }
-
-    /**
-     * @test
-     */
-    public function should_wrap_invocable_with_TaskBuilder()
-    {
-        $this->assertInstanceOf(
-            '\Officine\Amaka\Task\DefaultTaskBuilder',
-            $this->script->task($this)
-        );
-        $this->script->task($this);
     }
 
     public function hasInvoked()

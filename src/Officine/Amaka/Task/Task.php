@@ -15,7 +15,21 @@ namespace Officine\Amaka\Task;
  */
 class Task extends AbstractTask
 {
+    private $codeFragment;
+
+    public function __construct($name, $closure = null)
+    {
+        $this->codeFragment = $closure;
+        parent::__construct($name);
+    }
+
     public function invoke()
     {
+        if (! is_callable($this->codeFragment)) {
+            return;
+        }
+
+        $arguments = func_get_args();
+        return call_user_func_array($this->codeFragment, $arguments);
     }
 }

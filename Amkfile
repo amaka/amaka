@@ -1,8 +1,10 @@
 <?php
 
 return array(
-    $amaka->task('test'),
     $amaka->task(':default')->dependsOn('test', ':spec'),
+    $amaka->task('test', function() {
+        system('vendor/bin/phpunit');
+    }),
     $amaka->task(':spec', function() {
         system("vendor/bin/behat -f progress");
         system("vendor/bin/behat -p acceptance -f progress");

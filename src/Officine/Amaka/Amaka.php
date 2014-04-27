@@ -220,7 +220,7 @@ class Amaka
                 ->trigger();
         }
 
-        $detector = new CycleDetector($as);
+        $detector = new CycleDetector($as->getSymbolTable());
         $runner   = new StandardRunner($as);
 
         if (! $detector->isValid($startTask)) {

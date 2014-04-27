@@ -8,29 +8,16 @@
  */
 namespace Officine\Amaka\Task;
 
-/**
- *
- *
- */
 class TaskFactory
 {
-    /**
-     * @var string
-     */
-    private static $namespace = '\\Officine\\Amaka\\Task\\Ext';
-
     /**
      * Create a new Task
      *
      * @param string $name
      * @return Officine\Amaka\Task\Task
      */
-    public static function factory($name)
+    public static function factory($name, $closure = null)
     {
-        if (':' === substr($name, 0, 1)) {
-            return new Task($name);
-        }
-        $class = self::$namespace . '\\' . ucfirst($name);
-        return new $class($name);
+        return new Task($name, $closure);
     }
 }

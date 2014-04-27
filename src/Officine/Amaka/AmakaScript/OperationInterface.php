@@ -4,5 +4,5 @@ namespace Officine\Amaka\AmakaScript;
 
 interface OperationInterface
 {
-    public function invoke();
+    /** public function invoke(...); */
 }

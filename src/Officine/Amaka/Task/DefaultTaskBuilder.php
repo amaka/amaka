@@ -63,6 +63,7 @@ class DefaultTaskBuilder implements Invocable
     public function setTask(Invocable $task = null)
     {
         $this->task = $task;
+        $this->setName($task->getName());
 
         return $this;
     }

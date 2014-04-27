@@ -1,80 +1,48 @@
 <?php
 
-use Officine\Amaka\AmakaScript\AmakaScript;
+use Officine\Amaka\AmakaScript\SymbolTable;
 use Officine\Amaka\AmakaScript\CycleDetector;
 
 class CycleDetectorTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
-        $this->amakaScript      = new AmakaScript();
-        $this->loopAmakaScript  = new AmakaScript();
-        $this->emptyAmakaScript = new AmakaScript();
-        $this->cycleAmakaScript = new AmakaScript();
-    }
-
-    /**
-     * @test
-     * @expectedException PHPUnit_Framework_Error
-     */
-    public function creating_one_without_a_buildfile_should_not_be_allowed()
-    {
-        new CycleDetector();
+        $this->table = new SymbolTable();
     }
 
     /**
      * @test
      */
-    public function should_not_detect_any_cycles_in_empty_buildfile()
+    public function emptyTableHasNoCycles()
     {
-        $cd = new CycleDetector($this->emptyAmakaScript);
+        $cd = new CycleDetector($this->table);
         $this->assertTrue($cd->isValid());
     }
 
     /**
      * @test
      */
-    public function should_detect_self_loops()
+    public function selfCycleDetection()
     {
-        // construct the simple loop buildfile
-        $loop = $this->loopAmakaScript->task(':A')
-                                    ->dependsOn(':A');
-        $this->loopAmakaScript->add($loop);
+        $this->table->addSymbol(':A', ':A');
 
-        $cd = new CycleDetector($this->loopAmakaScript);
+        $cd = new CycleDetector($this->table);
+
+        $this->assertFalse($cd->isValid(':A'));
         $this->assertFalse($cd->isValid());
     }
 
     /**
      * @test
      */
-    public function should_detect_simple_cycles()
+    public function otherCyclesDetection()
     {
-        // construct the simple cycle buildfile
-        $cycleA = $this->cycleAmakaScript->task(':A')
-                                       ->dependsOn(':B');
+        $this->table->addSymbol(':A', ':C');
+        $this->table->addSymbol(':C', ':A');
 
-        $cycleB = $this->cycleAmakaScript->task(':B')
-                                       ->dependsOn(':A');
+        $cd = new CycleDetector($this->table);
 
-        $this->cycleAmakaScript->add($cycleA)
-                             ->add($cycleB);
-
-        $cd = new CycleDetector($this->cycleAmakaScript);
+        $this->assertFalse($cd->isValid(':A'));
         $this->assertFalse($cd->isValid());
-    }
-
-    /**
-     * @test
-     */
-    public function should_not_trigger_node_class_loading()
-    {
-        $task = $this->amakaScript->task(':A')
-                                ->dependsOn('Composer');
-
-        $this->amakaScript->add($task);
-
-        $cd = new CycleDetector($this->amakaScript);
-        $cd->isValid(':A');
     }
 }

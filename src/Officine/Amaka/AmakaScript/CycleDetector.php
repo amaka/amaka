@@ -19,7 +19,7 @@ class CycleDetector
 {
     private $dag;
 
-    public function __construct(AmakaScript $buildfile)
+    public function __construct(SymbolTable $buildfile)
     {
         $this->dag = new Dag($buildfile);
     }

@@ -23,13 +23,6 @@ abstract class AbstractRunner
      */
     private $amakaScript;
 
-    /**
-     * Duration of the build process microseconds
-     *
-     * @var int
-     */
-    private $duration = 0;
-
     public function __construct(AmakaScript $amakaScript)
     {
         $this->amakaScript = $amakaScript;
@@ -40,23 +33,17 @@ abstract class AbstractRunner
      *
      * @param string $start
      */
-    public function run($startTask)
+    public function run($targetTask)
     {
-        $amakaScript = $this->amakaScript;
+        $table = $this->amakaScript->getSymbolTable();
+        $invocables = $this->amakaScript->getInvocables();
 
-        $startTask = $amakaScript->get($startTask);
-        $nodes = $startTask->getAdjacencyList();
-
-        Timer::start();
-        foreach ($nodes as $prerequisite) {
-            $this->run($prerequisite);
+        if ($invocables->contains($targetTask)) {
+            $task = $invocables->get($targetTask);
+            foreach ($table->getSymbolsRequiredBy($targetTask) as $prerequisite) {
+                $this->run($prerequisite);
+            }
+            $task->invoke();
         }
-        $startTask->invoke();
-        $this->duration = Timer::stop();
-    }
-
-    public function getDuration()
-    {
-        return $this->duration;
     }
 }
