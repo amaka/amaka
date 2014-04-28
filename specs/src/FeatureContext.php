@@ -8,6 +8,6 @@ class FeatureContext extends BehatContext
     {
         $this->useContext('token_replacement', new TokenReplacementContext());
         $this->useContext('directory_handling', new DirectoryHandlingContext());
-        $this->useContext('error_reporting', new ErrorHandlingContext());
+        $this->useContext('error_reporting', new ErrorReportingContext());
     }
 }

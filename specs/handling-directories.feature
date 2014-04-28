@@ -1,5 +1,5 @@
 @plugins @directories
-Feature: handling directories
+Feature: Directory Manipulation Plugin
   In order to create, move, copy, or delete directories
   Developers should be able to use the 'directories' plugin
   simple API to do their job.

@@ -1,10 +1,8 @@
-@amaka-core @error-handling
-Feature: Amaka Error Handling
-  As a Developer
-  I want to inform the Amaka end-user of some error that
-  has occurred during execution
-  In order to provide the end-user with friendly and consistent
-  error messages.
+@amaka-core @error-reporting
+Feature: Amaka Error Reporting
+  As a Developer I want to inform the Amaka end-user of some error
+  that has occurred during execution.  In order to provide the
+  end-user with friendly and consistent error messages.
 
   Scenario: Generating and printing errors
     Given that "Example error." is encountered

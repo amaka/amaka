@@ -1,3 +1,4 @@
+@ui @writing-scripts
 Feature: Writing Amaka Scripts
   As a Developer
   I want to use the Amaka DSL to do some simple automation

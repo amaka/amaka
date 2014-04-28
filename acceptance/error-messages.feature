@@ -1,5 +1,5 @@
-@ui @error-reporting
-Feature: Error Messages
+@ui @error-handling @error-reporting
+Feature: Amaka Error Messages to the User
   As a developer
   I use Amaka in the wrong way
   So I expect to be told what to do, and what I did wrong
@@ -39,3 +39,27 @@ Feature: Error Messages
       """
       When I run amaka with arguments "-f DependsOnUndeclaredTask.amk TASK_A"
       Then the output on the screen should contain "The named invocable 'TASK_Z' could not be retrieved from the script definition"
+
+    Scenario: Writing a task which uses an undefined operation
+      Given the amaka script "UndefinedOperation.amk" contains
+      """
+          <?php return [
+              $amaka->task('TASK_A', function() use ($amaka) {
+                  $amaka->bogusOperation();
+              })
+          ];
+      """
+      When I run amaka with arguments "-f UndefinedOperation.amk TASK_A"
+      Then the output on the screen should contain "Unknown operation 'bogusOperation'"
+
+
+    Scenario: Writing a task with a PHP parse error in the code fragment
+      # We're asserting that the PHP error is left untouched by Amaka.
+      Given the amaka script "PHPParseError.amk" contains
+      """
+          <?php return [
+              $amaka->task('TASK_A', function() { hello world });
+          ];
+      """
+      When I run amaka with arguments "-f PHPParseError.amk TASK_A"
+      Then the output on the screen should contain "Parse error: syntax error, unexpected 'world' (T_STRING)"

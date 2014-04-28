@@ -1,5 +1,5 @@
 @plugins @token-replacement
-Feature: token replacement
+Feature: Token Replacement Plugin
 
   Scenario: replacing a token in empty file
     Given an empty file

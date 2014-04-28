@@ -7,7 +7,7 @@ use Behat\Gherkin\Node\TableNode;
 
 use Officine\Amaka\ErrorReporting\Formatter\ErrorFormatter;
 
-class ErrorHandlingContext extends BehatContext
+class ErrorReportingContext extends BehatContext
 {
     private $errorType;
     private $errorFile;
