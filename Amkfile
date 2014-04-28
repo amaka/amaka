@@ -1,6 +1,6 @@
 <?php
 
-return array(
+return [
     $amaka->task(':default')->dependsOn('test', ':spec'),
     $amaka->task('test', function() {
         system('vendor/bin/phpunit');
