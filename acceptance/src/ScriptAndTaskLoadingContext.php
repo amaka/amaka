@@ -34,6 +34,14 @@ class ScriptAndTaskLoadingContext extends EndToEndSpecContext
     }
 
     /**
+     * @Given /^I run amaka without arguments$/
+     */
+    public function iRunAmakaWithoutArguments()
+    {
+        $this->runCommand();
+    }
+
+    /**
      * @Then /^the output on the screen should contain "([^"]*)"$/
      */
     public function theOutputOnTheScreenShouldContain($needle)

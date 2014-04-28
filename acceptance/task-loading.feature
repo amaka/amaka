@@ -1,3 +1,4 @@
+@ui
 Feature: Amaka task loading
   Amaka need to be able to find a task inside of a script so it can run it
   As a developer
@@ -14,7 +15,7 @@ Feature: Amaka task loading
     """
     <?php return [
         $amaka->task(':example-task', function() {
-            echo 'EXAMPLTE_TASK';
+            echo 'EXAMPLE_TASK';
         }),
         $amaka->task(':default', function() {
             echo 'DEFAULT_TASK';
@@ -25,7 +26,7 @@ Feature: Amaka task loading
     """
     <?php return [
         $amaka->task(':example-task', function() {
-            echo 'EXAMPLTE_TASK';
+            echo 'EXAMPLE_TASK';
         })];
     """
 
@@ -40,12 +41,12 @@ Feature: Amaka task loading
     Scenario: task is provided, task can be found, there is no default task
      When I run amaka with arguments "-f ScriptNoDefault.amk :example-task"
      Then the output on the screen should contain "(Task ':example-task')"
-     Then the output on the screen should contain "EXAMPLTE_TASK"
+     Then the output on the screen should contain "EXAMPLE_TASK"
 
     Scenario: task is provided, task can be found, there is default task
      When I run amaka with arguments "-f ScriptWithDefault.amk :example-task"
      Then the output on the screen should contain "(Task ':example-task')"
-     And the output on the screen should contain "EXAMPLTE_TASK"
+     And the output on the screen should contain "EXAMPLE_TASK"
      And the output on the screen should not contain "DEFAULT_TASK"
 
     Scenario: task is provided, task can not be found, there is default task

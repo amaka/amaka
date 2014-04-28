@@ -43,6 +43,7 @@ class Directories implements PluginInterface
 
     public function copy($source, $dest)
     {
+        return copy($source, $dest);
     }
 
     public function move($source, $dest)

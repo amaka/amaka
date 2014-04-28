@@ -199,13 +199,12 @@ class Amaka
         // and the script loaded was empty
         // Because one can't simply walk into Mordor.
         if (! $startTask && (! $targetTask || $as->isEmpty())) {
-            $error = Trigger::error('No tasks to run');
-            $error->addResolution([
-                "Write a task called ':default' in your script:"
-                => "Next time Amaka is run without a target task "
-                .  "it will run this one instead of showing an error."
-            ]);
-            $error->trigger();
+            Trigger::error('No tasks to run')
+                ->addResolution([
+                    "Write a task called ':default' in your script:"
+                    => "Next time Amaka is run without a target task "
+                    .  "it will run this one instead of showing an error."
+                ])->trigger();
         }
 
         // A target task was provided by the user,
@@ -213,7 +212,7 @@ class Amaka
         // Perhaps the guy has mistyped its name, or something
         // we don't know.
         if ($targetTask && ! $as->get($targetTask)) {
-            $error = Trigger::error()
+            Trigger::error()
                 ->fromException(new UndefinedTaskException(
                     "Task '{$targetTask}' was not found in the amaka script."
                 ))->addResolution("Check that you've typed the name of the task correcly.")
@@ -224,7 +223,7 @@ class Amaka
         $runner   = new StandardRunner($as);
 
         if (! $detector->isValid($startTask)) {
-            $error = Trigger::error(
+            Trigger::error(
                 'Cycle detected',
                 "The execution was interrupted because '{$startTask}'"
                 . " or one of its dependant tasks are creating a cycle."
@@ -233,7 +232,13 @@ class Amaka
              ->trigger();
         }
 
-        $runner->run($startTask);
+        try {
+            $runner->run($startTask);
+        } catch (\Exception $e) {
+            Trigger::error()
+                ->fromException($e)
+                ->trigger();
+        }
     }
 
     /**

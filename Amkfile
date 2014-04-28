@@ -10,11 +10,9 @@ return array(
         system("vendor/bin/behat -p acceptance -f progress");
     }),
     $amaka->task(':build', function() {
-        //$this->directories->create('build');
-
         system("vendor/bin/phpunit --coverage-html build/coverage 2>&1");
         system("vendor/bin/behat --format=html > build/specs.html");
         system("vendor/bin/behat -p acceptance --format=html > build/acceptance.html");
         system("vendor/bin/phpmd src/ html pmd.xml --reportfile build/mess.html");
     }),
-);
+];

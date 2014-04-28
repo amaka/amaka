@@ -8,6 +8,6 @@ class FinderOperation extends AbstractOperation
 {
     public function invoke()
     {
-        return null;
+        return new Finder();
     }
 }

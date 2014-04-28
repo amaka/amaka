@@ -8,8 +8,6 @@
  */
 namespace Officine\Amaka\AmakaScript;
 
-use PHP_Timer as Timer;
-
 /**
  * The AbstractRunner
  *
@@ -44,6 +42,8 @@ abstract class AbstractRunner
                 $this->run($prerequisite);
             }
             $task->invoke();
+        } else {
+            throw new \RuntimeException("The named invocable '{$targetTask}' could not be retrieved from the script definition");
         }
     }
 }

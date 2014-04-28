@@ -1,3 +1,4 @@
+@ui
 Feature: Amaka script loading mechanism
   In order to run a task Amaka first needs to load a script
   As a developer
