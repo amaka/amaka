@@ -6,47 +6,47 @@ use Officine\Amaka\Operation\OperationInterface;
 
 class DispatchTable
 {
-    private $operations = [];
+    private $methods = [];
 
     /**
-     * @param string $operationName Should be a valid method name.
+     * @param string $methodName Should be a valid method name.
      */
-    public function handle($operationName, $arguments = [])
+    public function handle($methodName, $arguments = [])
     {
-        if (empty($operationName)) {
-            throw new \InvalidArgumentException('No operation name provided');
+        if (empty($methodName)) {
+            throw new \InvalidArgumentException('No method name provided');
         }
 
-        if (! $this->contains($operationName)) {
-            throw new \Exception("Unknown operation '$operationName'");
+        if (! $this->contains($methodName)) {
+            throw new \Exception("Unknown method '$methodName'");
         }
 
-        $operation = $this->getOperation($operationName);
+        $method = $this->getMethod($methodName);
 
-        if ($operation instanceof OperationInterface) {
-            $operation = [$operation, 'invoke'];
+        if ($method instanceof OperationInterface) {
+            $method = [$method, 'invoke'];
         }
-        return call_user_func_array($operation, $arguments);
+        return call_user_func_array($method, $arguments);
     }
 
-    public function getOperation($operationName)
+    public function getMethod($methodName)
     {
-        if ($this->contains($operationName)) {
-            return $this->operations[$operationName];
+        if ($this->contains($methodName)) {
+            return $this->methods[$methodName];
         }
     }
 
-    public function expose($operationName, $closureHandler)
+    public function expose($methodName, $closureHandler)
     {
         //if ($this->readOnly) {
         //    throw new \Exception();
         //}
-        $this->operations[$operationName] = $closureHandler;
+        $this->methods[$methodName] = $closureHandler;
         return $this;
     }
 
-    public function contains($operationName)
+    public function contains($methodName)
     {
-        return isset($this->operations[$operationName]);
+        return isset($this->methods[$methodName]);
     }
 }

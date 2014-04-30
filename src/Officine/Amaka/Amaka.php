@@ -11,13 +11,17 @@ namespace Officine\Amaka;
 use Zend\EventManager\EventManager;
 
 use Officine\Amaka\Context\CliContext;
-use Officine\Amaka\AmakaScript\CycleDetector;
-use Officine\Amaka\AmakaScript\StandardRunner;
 use Officine\Amaka\AmakaScript\AmakaScript;
+use Officine\Amaka\AmakaScript\CycleDetector;
+use Officine\Amaka\AmakaScript\SymbolTable;
+use Officine\Amaka\AmakaScript\DispatchTable;
+use Officine\Amaka\AmakaScript\StandardRunner;
 use Officine\Amaka\AmakaScript\UndefinedTaskException;
 use Officine\Amaka\AmakaScript\AmakaScriptNotFoundException;
 
-use Officine\Amaka\PluginBroker;
+use Officine\Amaka\Operation\TaskOperation;
+use Officine\Amaka\Operation\FinderOperation;
+
 use Officine\Amaka\Plugin\Finder;
 use Officine\Amaka\Plugin\TaskArgs;
 use Officine\Amaka\Plugin\Directories;
@@ -37,7 +41,9 @@ class Amaka
 {
     private $context;
     private $amakaScript;
-    private $pluginBroker;
+    private $symbolsTable;
+    private $helpersTable;
+    private $operationsTable;
     private $defaultScriptName = 'Amkfile';
     private $defaultTaskName = ':default';
 
@@ -52,27 +58,22 @@ class Amaka
         $baseDirectory = $this->getContext()
                               ->getWorkingDirectory();
 
-        // IoC should be applied to the code below this marker line
-        $broker = new PluginBroker();
-        $plugins = array(
-            new Finder(),
-            new TaskArgs($arguments),
-            new Directories($baseDirectory),
-            new TokenReplacement(),
-        );
+        $this->symbolsTable = new SymbolTable();
+        $this->helpersTable = new DispatchTable();
+        $this->operationsTable = new DispatchTable();
 
-        array_walk($plugins, function($plugin) use ($broker) {
-            $broker->registerPlugin($plugin);
+        $this->operationsTable->expose('task', new TaskOperation($this->symbolsTable, $this->helpersTable))
+                              ->expose('finder', new FinderOperation());
+
+        $this->helpersTable->expose('finder', function() {
+            return new Finder();
+        })->expose('directories', function() use ($baseDirectory) {
+            return new Directories($baseDirectory);
+        })->expose('taskArgs', function() use ($arguments) {
+            return new TaskArgs($arguments);
+        })->expose('tokenReplacement', function() {
+            return new TokenReplacement();
         });
-
-        $this->setPluginBroker($broker);
-        // end of marker
-    }
-
-    public function setPluginBroker($broker)
-    {
-        $this->pluginBroker = $broker;
-        return $this;
     }
 
     public function setContext(Context $context = null)
@@ -133,11 +134,12 @@ class Amaka
             }
             $fail->trigger();
         }
-        // we need to remove the coupling between Amaka, the PluginBroker and the AmakaScript classes
-        // We'll refactor and apply IoC for the TaskBuilder to accept its own reference of the pluginBroker.
+
         $script = new AmakaScript();
-        $script->setPluginBroker($this->pluginBroker);
-        $script->loadFromFile($scriptPath);
+        $script->setSymbolsTable($this->symbolsTable)
+               ->setHelpersTable($this->helpersTable)
+               ->setOperationsTable($this->operationsTable)
+               ->loadFromFile($scriptPath);
 
         $this->setAmakaScript($script);
 

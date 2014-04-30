@@ -8,7 +8,7 @@
  */
 use PHPUnit_Framework_TestCase as TestCase;
 
-use Officine\Amaka\AmakaScript\ScriptScope;
+use Officine\Amaka\Scope\ScriptScope;
 
 class ScriptScopeTest extends TestCase
 {

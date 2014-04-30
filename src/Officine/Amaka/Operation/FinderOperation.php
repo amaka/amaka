@@ -4,7 +4,7 @@ namespace Officine\Amaka\Operation;
 
 use Symfony\Component\Finder\Finder;
 
-class FinderOperation extends AbstractOperation
+class FinderOperation implements OperationInterface
 {
     public function invoke()
     {

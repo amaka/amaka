@@ -6,13 +6,13 @@
  * @copyright Copyright (c) 2013-2014 Andrea Turso
  * @author    Andrea Turso <andrea.turso@gmail.com>
  */
-use Officine\Amaka\AmakaScript\ExpressionBuilder;
+use Officine\Amaka\Operation\Action\DependsOnAction;
 
 use PHPUnit_Framework_TestCase as TestCase;
 
-class ExpressionBuilderTest extends TestCase
+class DependsOnActionTest extends TestCase
 {
-    public function testExpressionBuilderCollectsDependenciesInASymbolTable()
+    public function testDependenciesAreStoredInsideASymbolTable()
     {
         $invocable = $this->getMock('Officine\Amaka\Invocable', ['getName', 'invoke']);
         $invocable->expects($this->once())
@@ -24,7 +24,7 @@ class ExpressionBuilderTest extends TestCase
               ->method('addSymbol')
               ->with($this->equalTo('A'), $this->equalTo(['B', 'C']));
 
-        $expr = new ExpressionBuilder($table, $invocable);
+        $expr = new DependsOnAction($invocable, $table);
         $this->assertSame($expr, $expr->dependsOn('B', 'C'));
     }
 
@@ -36,7 +36,7 @@ class ExpressionBuilderTest extends TestCase
 
         $table = $this->getMock('Officine\Amaka\AmakaScript\SymbolTable');
 
-        $expr = new ExpressionBuilder($table, $invocable);
+        $expr = new DependsOnAction($invocable, $table);
         $expr->invoke();
     }
 }

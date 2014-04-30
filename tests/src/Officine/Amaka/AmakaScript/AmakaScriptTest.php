@@ -6,18 +6,12 @@
  * @copyright Copyright (c) 2013-2014 Andrea Turso
  * @author    Andrea Turso <andrea.turso@gmail.com>
  */
-use Officine\Amaka\Invocable;
 use Officine\Amaka\AmakaScript\AmakaScript;
 
 use PHPUnit_Framework_TestCase as TestCase;
 
-class AmakaScriptTest extends TestCase implements Invocable
+class AmakaScriptTest extends TestCase
 {
-    public function setUp()
-    {
-        $this->script = new AmakaScript();
-    }
-
     /**
      * As a developer writing an amaka script using the APIs
      * I want to create a Buildfile object from an array definition
@@ -39,13 +33,20 @@ class AmakaScriptTest extends TestCase implements Invocable
      */
     public function should_be_manipulable_before_execution()
     {
-        $arrayDefinition = array(new \Officine\Amaka\Task\Task('hello world'));
+        $table = $this->getMock('Officine\Amaka\AmakaScript\SymbolTable', ['addSymbol']);
 
-        $this->script->loadFromArray($arrayDefinition);
-        $this->script->add(new \Officine\Amaka\Task\Task('example'));
+        $script = new AmakaScript();
+        $script->setSymbolsTable($table);
 
-        $this->assertTrue($this->script->has('hello world'));
-        $this->assertTrue($this->script->has('example'));
+        $arrayDefinition = [
+            new \Officine\Amaka\Task\Task('hello world')
+        ];
+
+        $script->loadFromArray($arrayDefinition);
+        $script->add(new \Officine\Amaka\Task\Task('example'));
+
+        $this->assertTrue($script->has('hello world'));
+        $this->assertTrue($script->has('example'));
     }
 
     /**
@@ -54,9 +55,9 @@ class AmakaScriptTest extends TestCase implements Invocable
     public function should_alias_get_when_invoked_as_a_function()
     {
         $task = new \Officine\Amaka\Task\Task('example');
-        $script = $this->script;
+        $script = new AmakaScript();
 
-        $this->script->add($task);
+        $script->add($task);
         $this->assertSame($task, $script('example'));
     }
 
@@ -67,13 +68,5 @@ class AmakaScriptTest extends TestCase implements Invocable
     public function should_throw_when_creating_from_non_existing_file()
     {
         new AmakaScript(__DIR__ . '/_files/bogus/Amkfile');
-    }
-
-    public function hasInvoked()
-    {
-    }
-
-    public function invoke()
-    {
     }
 }

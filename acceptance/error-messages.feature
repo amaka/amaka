@@ -50,7 +50,7 @@ Feature: Amaka Error Messages to the User
           ];
       """
       When I run amaka with arguments "-f UndefinedOperation.amk TASK_A"
-      Then the output on the screen should contain "Unknown operation 'bogusOperation'"
+      Then the output on the screen should contain "Unknown method 'bogusOperation'"
 
 
     Scenario: Writing a task with a PHP parse error in the code fragment

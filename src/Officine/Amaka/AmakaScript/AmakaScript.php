@@ -10,44 +10,46 @@ namespace Officine\Amaka\AmakaScript;
 
 use Officine\Amaka\Invocable;
 use Officine\Amaka\InvocablesList;
-use Officine\Amaka\Task\Task;
-use Officine\Amaka\PluginBroker;
+use Officine\Amaka\Scope\ScriptScope;
 use Officine\Amaka\ErrorReporting\Trigger;
-use Officine\Amaka\Operation\TaskOperation;
-use Officine\Amaka\Operation\FinderOperation;
+use Officine\Amaka\AmakaScript\SymbolTable;
+use Officine\Amaka\AmakaScript\DispatchTable;
 
 /**
  * @author Andrea Turso <andrea.turso@gmail.com>
  */
 class AmakaScript implements \IteratorAggregate
 {
-    /**
-     * The set of vertices making up the Buildfile DAG, each vertex is
-     * an Invocable object, e.g. tasks, registred in the amaka
-     * scripts.
-     *
-     * @var Officine\Amaka\InvocablesList
-     */
-    private $invocablesList;
-    private $scriptScope;
-    private $pluginBroker;
-    private $symbolTable;
-    private $dispatchTable;
     private $scriptFileName = 'NFF';
+    private $scriptScope;
+    private $symbolsTable;
+    private $helpersTable;
+    private $operationsTable;
+    private $invocablesList;
 
     public function __construct($source = null)
     {
         $this->invocablesList = new InvocablesList();
 
-        $this->symbolTable = new SymbolTable();
-
-        $this->dispatchTable = new DispatchTable();
-        $this->dispatchTable->expose('task', new TaskOperation($this->symbolTable));
-        $this->dispatchTable->expose('finder', new FinderOperation($this->symbolTable));
-
-        $this->scriptScope = new ScriptScope($this->dispatchTable);
-
         $this->load($source);
+    }
+
+    public function setSymbolsTable(SymbolTable $symbolsTable)
+    {
+        $this->symbolsTable = $symbolsTable;
+        return $this;
+    }
+
+    public function setHelpersTable(DispatchTable $helpersTable)
+    {
+        $this->helpersTable = $helpersTable;
+        return $this;
+    }
+
+    public function setOperationsTable(DispatchTable $operationsTable)
+    {
+        $this->operationsTable = $operationsTable;
+        return $this;
     }
 
     /**
@@ -62,7 +64,7 @@ class AmakaScript implements \IteratorAggregate
     public function loadFromArray(array $arrayDefinition)
     {
         if (! empty($arrayDefinition)) {
-            $symbols = $this->symbolTable;
+            $symbols = $this->symbolsTable;
             $invocables = $this->invocablesList;
             array_walk($arrayDefinition, function($invocable) use ($symbols, $invocables) {
                 $invocables->add($invocable);
@@ -72,7 +74,7 @@ class AmakaScript implements \IteratorAggregate
                 );
             });
         }
-        //var_dump($this->symbolTable);
+        //var_dump($this->symbolsTable);
         return $this;
     }
 
@@ -88,18 +90,24 @@ class AmakaScript implements \IteratorAggregate
             $error->addResolution('Check')
                   ->trigger();
         }
+        $__dirName = dirname($__fileName);
 
-        $amaka = $this->scriptScope;
+        $scope = new ScriptScope($this->operationsTable);
+        $amaka = $scope;
 
-        $fetchScriptStructure = function() use ($amaka, $__fileName) {
+        $fetcher = function() use ($amaka, $__dirName, $__fileName) {
             return include $__fileName;
         };
 
-        $bareScriptScope = $fetchScriptStructure->bindTo($this->scriptScope);
-        $script = $bareScriptScope();
+        $newScope = $fetcher->bindTo($scope);
+        $scriptArrayDefinition = $newScope();
 
+        $this->scriptScope = $scope;
         $this->scriptFileName = $__fileName;
-        return $this->loadFromArray(is_array($script) ? $script : []);
+
+        if (is_array($scriptArrayDefinition)) {
+            return $this->loadFromArray($scriptArrayDefinition);
+        }
     }
 
     /**
@@ -156,7 +164,7 @@ class AmakaScript implements \IteratorAggregate
 
     public function getSymbolTable()
     {
-        return $this->symbolTable;
+        return $this->symbolsTable;
     }
 
     public function isEmpty()
@@ -172,17 +180,6 @@ class AmakaScript implements \IteratorAggregate
     public function getIterator()
     {
         return $this->invocablesList;
-    }
-
-    public function setPluginBroker($broker)
-    {
-        $this->pluginBroker = $broker;
-        return $this;
-    }
-
-    public function getPluginBroker()
-    {
-        return $this->pluginBroker;
     }
 
     public function __toString()
