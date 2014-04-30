@@ -47,16 +47,16 @@ Feature: Writing Amaka Scripts
       When I run amaka without arguments
       Then the output on the screen should contain "ScriptScope"
 
-    Scenario: Using the Finder operation to find files
+    Scenario: Using the Finder helper to find files
       Given the amaka script "Amkfile" contains
       """
       <?php return [
-          $amaka->task(":default", function() use ($amaka, $__fileName) {
-              $fileSet = $amaka->finder()
+          $amaka->task(":default", function() use ($__dirName, $__fileName) {
+              $fileSet = $this->finder()
                                ->files()
                                ->ignoreUnreadableDirs()
                                ->name('Amkfile')
-                               ->in(__DIR__);
+                               ->in($__dirName);
 
               foreach ($fileSet as $file) {
                   echo 'fileName: ' . $file->getFileName();
