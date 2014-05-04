@@ -62,4 +62,4 @@ Feature: Amaka Error Messages to the User
           ];
       """
       When I run amaka with arguments "-f PHPParseError.amk TASK_A"
-      Then the output on the screen should contain "Parse error: syntax error, unexpected 'world' (T_STRING)"
+      Then the output on the screen should contain "Parse error"

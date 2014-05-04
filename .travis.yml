@@ -1,6 +1,5 @@
 language: php
 php:
-  - 5.3
   - 5.4
   - 5.5
   - hhvm
@@ -16,4 +15,9 @@ before_script:
   - curl -s https://getcomposer.org/installer | php
   - php composer.phar update --dev --prefer-dist
 
-script: php bin/amaka :build
+before_script:
+  - vendor/bin/phpunit -c phpunit.xml --bootstrap tests/helper.php tests/
+  - vendor/bin/behat -f progress
+  - vendor/bin/behat -f progress -p acceptance
+
+script: bin/amaka :build
