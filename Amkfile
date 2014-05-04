@@ -15,7 +15,4 @@ return [
         system("vendor/bin/behat -p acceptance --format=html > build/acceptance.html");
         system("vendor/bin/phpmd src/ html pmd.xml --reportfile build/mess.html");
     }),
-    $amaka->task('asd', function() use ($amaka) {
-        var_dump($this->self(), $this, $amaka);
-    }),
 ];
