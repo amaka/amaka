@@ -11,11 +11,9 @@ branches:
 env:
   - LIB_PATH=vendor/
 
-before_script:
-  - curl -s https://getcomposer.org/installer | php
-  - php composer.phar update --dev --prefer-dist
+install: composer install
+script:
   - vendor/bin/phpunit -c phpunit.xml --bootstrap tests/helper.php tests/
   - vendor/bin/behat -f progress
   - vendor/bin/behat -f progress -p acceptance
-
-script: bin/amaka :build
+after_script: bin/amaka :build
