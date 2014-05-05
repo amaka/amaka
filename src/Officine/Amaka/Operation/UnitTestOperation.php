@@ -15,22 +15,10 @@ class UnitTestOperation implements OperationInterface
         $this->testDriver = $testDriver;
     }
 
-    public function invoke()
+
+    public function invoke($operationName = null, $configCallback = null)
     {
-        $args = func_get_args();
-        $operationName = null;
-        $configCallback = null;
-
-        if (count($args) == 1 && is_string($args[0])) {
-            $operationName = $args[0];
-        } else if (count($args) == 1 && is_callable($args[0])) {
-            $configCallback = $args[0];
-        } else if (count($args) == 2 && is_string($args[0]) && 2 && is_callable($args[1])) {
-            $operationName = $args[0];
-            $configCallback = $args[1];
-        }
-
-        if ($operationName) {
+        if (is_string($operationName)) {
             $this->operationName = $operationName;
         }
 
@@ -39,7 +27,7 @@ class UnitTestOperation implements OperationInterface
         }
 
         $testDriver = $this->testDriver;
-        return new Task('test', function() use ($testDriver) {
+        return new Task($this->getName(), function() use ($testDriver) {
             $testDriver->run();
         });
     }
