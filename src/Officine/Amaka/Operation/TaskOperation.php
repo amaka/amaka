@@ -13,19 +13,19 @@ use Officine\Amaka\Action\DependsOnAction;
 class TaskOperation implements OperationInterface
 {
     private $taskName;
+    private $helpersTable;
     private $symbolsTable;
-    private $dispatchTable;
 
-    public function __construct(DispatchTable $dispatchTable, SymbolTable $symbolsTable)
+    public function __construct(DispatchTable $helpersTable, SymbolTable $symbolsTable)
     {
         $this->symbolsTable = $symbolsTable;
-        $this->dispatchTable = $dispatchTable;
+        $this->helpersTable = $helpersTable;
     }
 
     public function invoke($taskName, $codeFragment = null)
     {
         if (is_string($taskName)) {
-            $scope = new TaskScope($this->dispatchTable);
+            $scope = new TaskScope($this->helpersTable);
 
             if ($codeFragment instanceof \Closure) {
                 $codeFragment = $codeFragment->bindTo($scope);

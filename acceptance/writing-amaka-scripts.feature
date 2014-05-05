@@ -53,10 +53,10 @@ Feature: Writing Amaka Scripts
       <?php return [
           $amaka->task(":default", function() use ($__dirName, $__fileName) {
               $fileSet = $this->finder()
-                               ->files()
-                               ->ignoreUnreadableDirs()
-                               ->name('Amkfile')
-                               ->in($__dirName);
+                              ->files()
+                              ->ignoreUnreadableDirs()
+                              ->name('Amkfile')
+                              ->in($__dirName);
 
               foreach ($fileSet as $file) {
                   echo 'fileName: ' . $file->getFileName();

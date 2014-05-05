@@ -63,7 +63,7 @@ class Amaka
         $this->helpersTable = new DispatchTable();
         $this->operationsTable = new DispatchTable();
 
-        $this->operationsTable->expose('task', new TaskOperation($this->operationsTable, $this->symbolsTable));
+        $this->operationsTable->expose('task', new TaskOperation($this->helpersTable, $this->symbolsTable));
         $this->operationsTable->expose('unitTest', new UnitTestOperation(new PHPUnitDriver()));
 
         $this->helpersTable->expose('finder', function() {
