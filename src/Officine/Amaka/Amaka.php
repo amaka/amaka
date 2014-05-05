@@ -20,7 +20,8 @@ use Officine\Amaka\AmakaScript\UndefinedTaskException;
 use Officine\Amaka\AmakaScript\AmakaScriptNotFoundException;
 
 use Officine\Amaka\Operation\TaskOperation;
-use Officine\Amaka\Operation\FinderOperation;
+use Officine\Amaka\Operation\UnitTestOperation;
+use Officine\Amaka\Operation\UnitTest\PHPUnitDriver;
 
 use Officine\Amaka\Plugin\Finder;
 use Officine\Amaka\Plugin\TaskArgs;
@@ -62,7 +63,8 @@ class Amaka
         $this->helpersTable = new DispatchTable();
         $this->operationsTable = new DispatchTable();
 
-        $this->operationsTable->expose('task', new TaskOperation($this->symbolsTable, $this->helpersTable));
+        $this->operationsTable->expose('task', new TaskOperation($this->operationsTable, $this->symbolsTable));
+        $this->operationsTable->expose('unitTest', new UnitTestOperation(new PHPUnitDriver()));
 
         $this->helpersTable->expose('finder', function() {
             return new Finder();

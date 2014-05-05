@@ -8,15 +8,13 @@
  */
 namespace Officine\Amaka;
 
-interface Invocable
+interface Invocable extends NamedInvocable
 {
     /** NOTE: Please remember to implement the invoke method
      * the prototype has been commented out to allow its signature
      * to be changed.
      *
-     * Otherwise we'd force client code to access the arguments with func_get_args.
+     * Otherwise we'd force client code to always access the arguments with func_get_args.
      */
     /** public function invoke(..); */
-
-    public function getName();
 }

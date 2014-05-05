@@ -6,7 +6,7 @@
  * @copyright Copyright (c) 2013-2014 Andrea Turso
  * @author    Andrea Turso <andrea.turso@gmail.com>
  */
-use Officine\Amaka\Operation\Action\DependsOnAction;
+use Officine\Amaka\Action\DependsOnAction;
 
 use PHPUnit_Framework_TestCase as TestCase;
 

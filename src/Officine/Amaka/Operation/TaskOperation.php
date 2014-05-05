@@ -8,14 +8,15 @@ use Officine\Amaka\Scope\TaskScope;
 use Officine\Amaka\AmakaScript\DispatchTable;
 use Officine\Amaka\AmakaScript\SymbolTable;
 use Officine\Amaka\ErrorReporting\Trigger;
-use Officine\Amaka\Operation\Action\DependsOnAction;
+use Officine\Amaka\Action\DependsOnAction;
 
 class TaskOperation implements OperationInterface
 {
+    private $taskName;
     private $symbolsTable;
     private $dispatchTable;
 
-    public function __construct(SymbolTable $symbolsTable, DispatchTable $dispatchTable)
+    public function __construct(DispatchTable $dispatchTable, SymbolTable $symbolsTable)
     {
         $this->symbolsTable = $symbolsTable;
         $this->dispatchTable = $dispatchTable;
@@ -30,11 +31,26 @@ class TaskOperation implements OperationInterface
                 $codeFragment = $codeFragment->bindTo($scope);
             }
 
-            $task = new Task($taskName, $codeFragment);
-            return new DependsOnAction($task, $this->symbolsTable);
+            $this->taskName = $taskName;
+            return new DependsOnAction(new Task($taskName, $codeFragment), $this->symbolsTable);
         }
+
         Trigger::error('Invalid task name')
             ->setLongMessage("Don't know what to do with '$taskName'.")
             ->trigger();
+    }
+
+    public function getName()
+    {
+        return $this->taskName;
+    }
+
+    public function dependsOn()
+    {
+        if (func_num_args()) {
+            $requiredTasks = func_get_args();
+            $this->symbolsTable->addSymbol($this->getName(), $requiredTasks);
+        }
+        return $this;
     }
 }

@@ -16,6 +16,7 @@
         "php": ">=5.4",
         "phpmd/phpmd" : "1.4.*",
         "symfony/finder": "2.3",
+        "symfony/process": "2.4",
         "behat/behat": "2.5",
         "phpunit/phpunit": "3.x",
         "zendframework/zendframework": "2.2"

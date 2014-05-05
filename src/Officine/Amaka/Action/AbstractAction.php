@@ -1,6 +1,6 @@
 <?php
 
-namespace Officine\Amaka\Operation\Action;
+namespace Officine\Amaka\Action;
 
 use Officine\Amaka\Invocable;
 
@@ -15,17 +15,11 @@ abstract class AbstractAction implements Invocable
 
     public function invoke()
     {
-        $arguments = func_get_args();
-        return call_user_func_array([$this->theInvocable, 'invoke'], $arguments);
+        return call_user_func_array([$this->theInvocable, 'invoke'], func_get_args());
     }
 
     public function getName()
     {
         return $this->theInvocable->getName();
-    }
-
-    protected function getInvocable()
-    {
-        return $this->theInvocable;
     }
 }

@@ -26,7 +26,7 @@ class DispatchTableTest extends TestCase
     {
         $operation = $this->getMock(
             '\Officine\Amaka\Operation\OperationInterface',
-            ['invoke']
+            ['invoke', 'getName']
         );
         $arguments = ['a', 1];
         $operation->expects($this->once())

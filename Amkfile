@@ -1,10 +1,12 @@
 <?php
 
 return [
-    $amaka->task(':default')->dependsOn('test', ':spec'),
-    $amaka->task('test', function() {
-        system('vendor/bin/phpunit');
+    $amaka->unitTest('test', function($driver) {
+        // $driver->testDirectory('tests')
+        // $driver->useConfigFile('phpunit.xml')
+        // $driver->useBootstrapFile('tests/helper.php')
     }),
+    $amaka->task(':default')->dependsOn('test', ':spec'),
     $amaka->task(':spec', function() {
         system("vendor/bin/behat -f progress");
         system("vendor/bin/behat -p acceptance -f progress");

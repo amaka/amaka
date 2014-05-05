@@ -1,17 +1,17 @@
 <?php
 
-namespace Officine\Amaka\Operation\Action;
+namespace Officine\Amaka\Action;
 
 use Officine\Amaka\Invocable;
 use Officine\Amaka\AmakaScript\SymbolTable;
 
 class DependsOnAction extends AbstractAction
 {
-    private $symbolTable;
+    private $symbolsTable;
 
-    public function __construct(Invocable $invocable, SymbolTable $symbolTable)
+    public function __construct(Invocable $invocable, SymbolTable $symbolsTable)
     {
-        $this->symbolTable = $symbolTable;
+        $this->symbolsTable = $symbolsTable;
         parent::__construct($invocable);
     }
 
@@ -19,7 +19,7 @@ class DependsOnAction extends AbstractAction
     {
         if (func_num_args()) {
             $requiredTasks = func_get_args();
-            $this->symbolTable->addSymbol($this->getName(), $requiredTasks);
+            $this->symbolsTable->addSymbol($this->getName(), $requiredTasks);
         }
         return $this;
     }

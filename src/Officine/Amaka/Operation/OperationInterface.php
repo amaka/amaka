@@ -2,7 +2,8 @@
 
 namespace Officine\Amaka\Operation;
 
-interface OperationInterface
+use Officine\Amaka\Invocable;
+
+interface OperationInterface extends Invocable
 {
-    /** public function invoke(...); */
 }
