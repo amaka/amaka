@@ -6,19 +6,34 @@ class DynamicCall
 {
     private $scope;
     private $callable;
+    private $arguments;
 
     public function __construct($callable, $scope = null)
     {
         $this->callable = $callable;
+        $this->attachTo($scope);
+    }
+
+    public function attachTo($scope)
+    {
         $this->scope = $scope;
+        return $this;
+    }
+
+    public function setArgumentsAsArray(array $arguments)
+    {
+        $this->arguments = $arguments;
+        return $this;
     }
 
     public function __invoke()
     {
+        $arguments = $this->arguments ? $this->arguments : func_get_args();
+
         if ($this->scope) {
-            return $this->callMethodWithArguments($this->callable, $this->scope, func_get_args());
+            return $this->callMethodWithArguments($this->callable, $this->scope, $arguments);
         }
-        return $this->callFunctionWithArguments($this->callable, func_get_args());
+        return $this->callFunctionWithArguments($this->callable, $arguments);
     }
 
     public function callMethodWithArguments($method, $scope, $arguments)

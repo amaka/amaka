@@ -18,6 +18,11 @@ class DynamicCallTest extends TestCase
         $this->assertEquals('CALLED', $call(), 'Could not get the result value of the invoked closure.');
     }
 
+    public function call()
+    {
+        return 'CALLED';
+    }
+
     public function testAttachingCallToMethod()
     {
         $scope = $this;
@@ -27,9 +32,12 @@ class DynamicCallTest extends TestCase
         $this->assertEquals('CALLED', $call(), 'Could not get the result value of the invoked method.');
     }
 
-    public function call()
+    public function testAttachingCallToFunction()
     {
-        return 'CALLED';
+        $function = create_function(null, 'return "CALLED";');
+        $call = new DynamicCall($function);
+
+        $this->assertEquals('CALLED', $call(), 'Could not get the result value of the invoked method.');
     }
 
     public function testPassingArgumentsToFunction()
@@ -40,9 +48,27 @@ class DynamicCallTest extends TestCase
 
         $call = new DynamicCall($closure);
 
-        $arguments = ['C', 'A', 'L', 'L', 'E', 'D'];
-
         $this->assertEquals('CALLED', $closure('C', 'A', 'L', 'L', 'E', 'D'));
         $this->assertEquals('CALLED', $call('C', 'A', 'L', 'L', 'E', 'D'), 'Could not get the result value of the invoked closure.');
+    }
+
+    public function testCallingWithIncrementalArguments()
+    {
+        $arguments = ['C', 'A', 'L', 'L', 'E', 'D'];
+        $tried = [];
+
+        $closure = function () {
+            return implode('', func_get_args());
+        };
+
+        // Rebuild incrementally the string 'CALLED'.
+        while ($tried[] = array_shift($arguments)) {
+            $call = new DynamicCall($closure);
+            $call->setArgumentsAsArray($tried);
+
+            $expectedReturnValue = $argumentsPassed = implode('', $tried);
+
+            $this->assertEquals($expectedReturnValue, $call(), 'Could not call function with: ' . $argumentsPassed);
+        }
     }
 }
