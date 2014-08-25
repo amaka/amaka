@@ -8,8 +8,6 @@
  */
 namespace Officine\Amaka;
 
-use Zend\EventManager\EventManager;
-
 use Officine\Amaka\Context\CliContext;
 use Officine\Amaka\AmakaScript\AmakaScript;
 use Officine\Amaka\AmakaScript\CycleDetector;

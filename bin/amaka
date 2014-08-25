@@ -29,10 +29,11 @@ $reporter->setPrintFunction($print);
 $reporter->setPrintLineFunction($printLine);
 
 $getopt = new Getopt(array(
-    'f=s'    => 'Load the specified amaka script',
+    'script|f=s'    => 'Load the specified amaka script',
     'list|l' => 'Prints the tasks in the amaka script',
     'init'   => "Create a new amaka script with a ':hello-world' task",
     'help|h' => 'Show this help screen',
+    'version|v' => 'Show the version of amaka.'
 ));
 
 $opts = $getopt;
@@ -40,9 +41,15 @@ $args = $getopt->getRemainingArgs();
 $task = array_pop($args);
 
 $scriptName = null;
-// Let the user load a different amaka script with -f
-if (isset($opts->f)) {
-    $scriptName = $opts->f;
+
+if (isset($opts->script)) {
+    $scriptName = $opts->script;
+}
+
+if (isset($opts->version)) {
+    $printLine('Amaka v0.6');
+    $printLine('Amaka: The Build Automator');
+    exit(0);
 }
 
 if (isset($opts->help)) {
@@ -51,37 +58,9 @@ if (isset($opts->help)) {
 }
 
 // Handle the creation of the new script
-if (isset($opts->init)) {
-    if (file_exists('Amkfile')) {
-        $printLine("An 'Amkfile' is already present in this project. Doing nothing.");
-    } else {
-        $script = <<<AMK_SCRIPT
-<?php
-/**
-  This is an example amaka script
-
-  If your project has a 'tests/' directory and a 'phpunit.xml' file
-  then you can run PHPUnit with 'amaka test'.
- */
-return array(
-    \$amaka->task(':hello-world', function() {
-        echo "Hello World!" . PHP_EOL;
-    }),
-    \$amaka->task('test'),
-);
-AMK_SCRIPT;
-            if (file_put_contents('Amkfile', $script)) {
-                $printLine("The new 'Amkfile' script has been created successfully.");
-                $printLine("Now you can run the hello world task with 'amaka :hello-world'");
-            } else {
-                $printLine("Could not create the 'Amkfile' script.");
-            }
-        }
-        return;
-    }
-
 try {
     $context = new CliContext();
+    $context->setReporter($reporter);
     $context->setParam('args', $args);
 
     $amaka = new Amaka('Amkfile', $context);

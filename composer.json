@@ -19,7 +19,9 @@
         "symfony/process": "2.4",
         "behat/behat": "2.5",
         "phpunit/phpunit": "3.x",
-        "zendframework/zendframework": "2.2"
+        "zendframework/zend-console": "2.2",
+        "zendframework/zend-config": "2.2",
+        "zendframework/zend-stdlib": "2.2"
     },
     "require-dev": {
     },
