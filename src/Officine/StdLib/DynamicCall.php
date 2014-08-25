@@ -20,10 +20,16 @@ class DynamicCall
         return $this;
     }
 
-    public function setArgumentsAsArray(array $arguments)
+    public function setArguments(array $arguments)
     {
         $this->arguments = $arguments;
         return $this;
+    }
+
+    public function withArguments(array $arguments)
+    {
+        $this->setArguments($arguments);
+        return $this();
     }
 
     public function __invoke()

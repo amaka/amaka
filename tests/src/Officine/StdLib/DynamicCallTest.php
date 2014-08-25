@@ -49,7 +49,7 @@ class DynamicCallTest extends TestCase
         $call = new DynamicCall($closure);
 
         $this->assertEquals('CALLED', $closure('C', 'A', 'L', 'L', 'E', 'D'));
-        $this->assertEquals('CALLED', $call('C', 'A', 'L', 'L', 'E', 'D'), 'Could not get the result value of the invoked closure.');
+        $this->assertEquals('CALLED', $call('C', 'A', 'L', 'L', 'E', 'D'), 'Could not ensure the arguments were passed to the invoked closure.');
     }
 
     public function testCallingWithIncrementalArguments()
@@ -62,13 +62,15 @@ class DynamicCallTest extends TestCase
         };
 
         // Rebuild incrementally the string 'CALLED'.
-        while ($tried[] = array_shift($arguments)) {
+        while ($argumentsPassed[] = array_shift($arguments)) {
             $call = new DynamicCall($closure);
-            $call->setArgumentsAsArray($tried);
+            $expectedReturnValue = implode('', $argumentsPassed);
 
-            $expectedReturnValue = $argumentsPassed = implode('', $tried);
-
-            $this->assertEquals($expectedReturnValue, $call(), 'Could not call function with: ' . $argumentsPassed);
+            $this->assertEquals(
+                $expectedReturnValue,
+                $call->withArguments($argumentsPassed),
+                "Could not call function with multiple arguments ({count($argumentsPassed)})."
+            );
         }
     }
 }

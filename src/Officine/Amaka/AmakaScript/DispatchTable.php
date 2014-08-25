@@ -2,6 +2,7 @@
 
 namespace Officine\Amaka\AmakaScript;
 
+use Officine\StdLib\DynamicCall;
 use Officine\Amaka\Operation\OperationInterface;
 
 class DispatchTable
@@ -21,12 +22,13 @@ class DispatchTable
             throw new \Exception("Unknown method '$methodName'");
         }
 
-        $method = $this->getMethod($methodName);
-
-        if ($method instanceof OperationInterface) {
-            $method = [$method, 'invoke'];
+        if ($this->getMethod($methodName) instanceof OperationInterface) {
+            $call = new DynamicCall('invoke', $this->getMethod($methodName));
+            return $call->withArguments($arguments);
         }
-        return call_user_func_array($method, $arguments);
+
+        $call = new DynamicCall($this->getMethod($methodName));
+        return $call->withArguments($arguments);
     }
 
     public function getMethod($methodName)
