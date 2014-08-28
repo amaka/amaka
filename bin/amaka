@@ -60,7 +60,6 @@ if (isset($opts->help)) {
 // Handle the creation of the new script
 try {
     $context = new CliContext();
-    $context->setReporter($reporter);
     $context->setParam('args', $args);
 
     $amaka = new Amaka('Amkfile', $context);
