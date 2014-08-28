@@ -52,25 +52,38 @@ class DynamicCallTest extends TestCase
         $this->assertEquals('CALLED', $call('C', 'A', 'L', 'L', 'E', 'D'), 'Could not ensure the arguments were passed to the invoked closure.');
     }
 
-    public function testCallingWithIncrementalArguments()
+    public function testCallingWithArguments()
     {
         $arguments = ['C', 'A', 'L', 'L', 'E', 'D'];
-        $tried = [];
 
         $closure = function () {
             return implode('', func_get_args());
         };
+        $call = new DynamicCall($closure);
 
-        // Rebuild incrementally the string 'CALLED'.
-        while ($argumentsPassed[] = array_shift($arguments)) {
-            $call = new DynamicCall($closure);
-            $expectedReturnValue = implode('', $argumentsPassed);
-
-            $this->assertEquals(
-                $expectedReturnValue,
-                $call->withArguments($argumentsPassed),
-                "Could not call function with multiple arguments ({count($argumentsPassed)})."
-            );
-        }
+        $this->assertEquals('CALLED', $call('C', 'A', 'L', 'L', 'E', 'D'));
     }
+
+    public function multipleArgumentsProvider()
+    {
+        return [
+            ['', ['']],
+            ['C', ['C']],
+            ['CA', ['C', 'A']],
+            ['CAL', ['C', 'A', 'L']],
+            ['CALL', ['C', 'A', 'L', 'L']],
+            ['CALLE', ['C', 'A', 'L', 'L', 'E']],
+            ['CALLED', ['C', 'A', 'L', 'L', 'E', 'D']],
+        ];
+    }
+
+    /**
+     * @dataProvider multipleArgumentsProvider
+     */
+    public function testCallingMultipleArguments($expected, $actual)
+    {
+        $call = new DynamicCall('call', $this);
+        $this->assertEqual($expected, $actual);
+    }
+
 }
