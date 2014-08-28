@@ -13,14 +13,12 @@ class DynamicCallTest extends TestCase
         };
 
         $call = new DynamicCall($closure);
-        $this->assertInstanceOf('\\Closure', $closure);
-        $this->assertEquals('CALLED', $closure());
-        $this->assertEquals('CALLED', $call(), 'Could not get the result value of the invoked closure.');
-    }
 
-    public function call()
-    {
-        return 'CALLED';
+        $this->assertEquals(
+            'CALLED',
+            $call(),
+            'Could not get the result value of the invoked closure.'
+        );
     }
 
     public function testAttachingCallToMethod()
@@ -29,7 +27,11 @@ class DynamicCallTest extends TestCase
         $method = 'call';
 
         $call = new DynamicCall('call', $scope);
-        $this->assertEquals('CALLED', $call(), 'Could not get the result value of the invoked method.');
+        $this->assertEquals(
+            'CALLED',
+            $call(),
+            'Could not get the result value of the invoked method.'
+        );
     }
 
     public function testAttachingCallToFunction()
@@ -37,19 +39,21 @@ class DynamicCallTest extends TestCase
         $function = create_function(null, 'return "CALLED";');
         $call = new DynamicCall($function);
 
-        $this->assertEquals('CALLED', $call(), 'Could not get the result value of the invoked method.');
+        $this->assertEquals(
+            'CALLED',
+            $call(),
+            'Could not get the result value of the invoked method.'
+        );
     }
 
     public function testPassingArgumentsToFunction()
     {
-        $closure = function () {
-            return implode('', func_get_args());
-        };
-
-        $call = new DynamicCall($closure);
-
-        $this->assertEquals('CALLED', $closure('C', 'A', 'L', 'L', 'E', 'D'));
-        $this->assertEquals('CALLED', $call('C', 'A', 'L', 'L', 'E', 'D'), 'Could not ensure the arguments were passed to the invoked closure.');
+        $call = new DynamicCall($this->getCallClosure());
+        $this->assertEquals(
+            'CALLED',
+            $call('C', 'A', 'L', 'L', 'E', 'D'),
+            'Could not ensure the arguments were passed to the invoked closure.'
+        );
     }
 
     public function testCallingWithArguments()
@@ -59,9 +63,22 @@ class DynamicCallTest extends TestCase
         $closure = function () {
             return implode('', func_get_args());
         };
-        $call = new DynamicCall($closure);
+        $call = new DynamicCall($this->getCallClosure());
 
-        $this->assertEquals('CALLED', $call('C', 'A', 'L', 'L', 'E', 'D'));
+        $this->assertEquals(
+            'CALLED',
+            $call('C', 'A', 'L', 'L', 'E', 'D')
+        );
+    }
+
+    /**
+     * @dataProvider multipleArgumentsProvider
+     */
+    public function testCallingMultipleArguments($expected, $actual)
+    {
+        $closure = $this->getCallClosure();
+        $call = new DynamicCall($closure);
+        $this->assertEquals($expected, call_user_func_array($closure, $actual));
     }
 
     public function multipleArgumentsProvider()
@@ -77,13 +94,16 @@ class DynamicCallTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider multipleArgumentsProvider
-     */
-    public function testCallingMultipleArguments($expected, $actual)
+    public function call()
     {
-        $call = new DynamicCall('call', $this);
-        $this->assertEqual($expected, $actual);
+        return 'CALLED';
+    }
+
+    public function getCallClosure()
+    {
+        return function () {
+            return implode('', func_get_args());
+        };
     }
 
 }
