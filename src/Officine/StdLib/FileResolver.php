@@ -32,8 +32,9 @@ class FileResolver
 
     public function callOrIgnore($callback, $filename)
     {
+        $call = new DynamicCall($callback);
         if (is_callable($callback)) {
-            call_user_func($callback, $filename);
+            return $call->withArguments([$filename]);
         }
     }
 
