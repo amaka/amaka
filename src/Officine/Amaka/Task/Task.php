@@ -8,6 +8,8 @@
  */
 namespace Officine\Amaka\Task;
 
+use Officine\StdLib\DynamicCall;
+
 /**
  * Task class
  *
@@ -29,7 +31,7 @@ class Task extends AbstractTask
             return;
         }
 
-        $arguments = func_get_args();
-        return call_user_func_array($this->codeFragment, $arguments);
+        $call = new DynamicCall($this->codeFragment);
+        return $call->withArguments(func_get_args());
     }
 }
