@@ -2,10 +2,11 @@
 
 namespace Officine\Amaka\AmakaScript\Definition;
 
-use Officine\Amaka\InvocablesList;
+use Officine\Amaka\Invocable;
 use Officine\Amaka\AmakaScript\SymbolTable;
+use Officine\Amaka\AmakaScript\Definition\ArrayDefinition;
 
-class ArrayDefinition extends InvocablesList implements DefinitionInterface
+class ArrayDefinition extends \ArrayObject implements DefinitionInterface
 {
     private $dependencies;
 
@@ -19,7 +20,8 @@ class ArrayDefinition extends InvocablesList implements DefinitionInterface
      */
     public function addInvocable($invocable)
     {
-        return parent::add($invocable);
+        $this->offsetSet(self::elementKey($invocable), $invocable);
+        return $this;
     }
 
     /**
@@ -27,7 +29,10 @@ class ArrayDefinition extends InvocablesList implements DefinitionInterface
      */
     public function getInvocable($invocable)
     {
-        return parent::get($invocable);
+        if ($this->offsetExists(self::elementKey($invocable))) {
+            return $this->offsetGet(self::elementKey($invocable));
+        }
+        return null;
     }
 
     /**
@@ -35,7 +40,40 @@ class ArrayDefinition extends InvocablesList implements DefinitionInterface
      */
     public function hasInvocable($invocable)
     {
-        return parent::contains($invocable);
+        return $this->offsetExists(self::elementKey($invocable));
+    }
+
+    /**
+     * Remove an element from the list
+     *
+     * @param Invocable $invocable
+     */
+    public function removeInvocable($invocable)
+    {
+        $this->offsetUnset(self::elementKey($invocable));
+        return $this;
+    }
+
+    /**
+     * Return the first Invocable in the list
+     *
+     * @return Invocable
+     */
+    public function first()
+    {
+        $invs = $this->getArrayCopy();
+        return reset($invs);
+    }
+
+    /**
+     * Return the last Invocable in the list
+     *
+     * @return Invocable
+     */
+    public function last()
+    {
+        $invs = $this->getArrayCopy();
+        return end($invs);
     }
 
     /**
@@ -44,6 +82,16 @@ class ArrayDefinition extends InvocablesList implements DefinitionInterface
     public function getDependencies($invocable)
     {
         return $this->dependencies->getSymbolsRequiredBy($invocable);
+    }
+
+    /**
+     * If the list has no elements this method returns false.
+     *
+     * @return bool
+     */
+    public function isEmpty()
+    {
+        return 0 == $this->count();
     }
 
     public function fromArray(array $arrayDefinition)
@@ -85,6 +133,6 @@ class ArrayDefinition extends InvocablesList implements DefinitionInterface
         if ($invocable instanceof Invocable) {
             return $invocable->getName();
         }
-        throw new \InvalidArgumentException("Empty invocable name or reference given.");
+        throw new \InvalidArgumentException("Invalid invocable name or reference given.");
     }
 }
