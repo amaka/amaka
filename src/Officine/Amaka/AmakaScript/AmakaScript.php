@@ -9,35 +9,26 @@
 namespace Officine\Amaka\AmakaScript;
 
 use Officine\Amaka\Invocable;
-use Officine\Amaka\InvocablesList;
 use Officine\Amaka\Scope\ScriptScope;
 use Officine\Amaka\ErrorReporting\Trigger;
-use Officine\Amaka\AmakaScript\SymbolTable;
 use Officine\Amaka\AmakaScript\DispatchTable;
+use Officine\Amaka\AmakaScript\Definition\ArrayDefinition;
+use Officine\Amaka\AmakaScript\Definition\DefinitionInterface;
 
 /**
  * @author Andrea Turso <andrea.turso@gmail.com>
  */
-class AmakaScript implements \IteratorAggregate
+class AmakaScript
 {
     private $scriptFileName = 'NFF';
     private $scriptScope;
-    private $symbolsTable;
     private $helpersTable;
     private $operationsTable;
-    private $invocablesList;
+    private $scriptDefinition;
 
-    public function __construct($source = null)
+    public function __construct(DefinitionInterface $scriptDefinition = null)
     {
-        $this->invocablesList = new InvocablesList();
-
-        $this->load($source);
-    }
-
-    public function setSymbolsTable(SymbolTable $symbolsTable)
-    {
-        $this->symbolsTable = $symbolsTable;
-        return $this;
+        $this->scriptDefinition = $scriptDefinition;
     }
 
     public function setHelpersTable(DispatchTable $helpersTable)
@@ -52,6 +43,11 @@ class AmakaScript implements \IteratorAggregate
         return $this;
     }
 
+    public function getDefinition()
+    {
+        return $this->scriptDefinition;
+    }
+
     /**
      * Iteratively adds the elements in #$array# to the Buildfile
      *
@@ -63,18 +59,7 @@ class AmakaScript implements \IteratorAggregate
      */
     public function loadFromArray(array $arrayDefinition)
     {
-        if (! empty($arrayDefinition)) {
-            $symbols = $this->symbolsTable;
-            $invocables = $this->invocablesList;
-            array_walk($arrayDefinition, function($invocable) use ($symbols, $invocables) {
-                $invocables->add($invocable);
-                $symbols->addSymbol(
-                    $invocable->getName(),
-                    $symbols->getSymbolsRequiredBy($invocable->getName())
-                );
-            });
-        }
-        //var_dump($this->symbolsTable);
+        $this->scriptDefinition->fromArray($arrayDefinition);
         return $this;
     }
 
@@ -83,8 +68,9 @@ class AmakaScript implements \IteratorAggregate
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      * @SuppressWarnings(PHPMD.CamelCaseParameterName)
      */
-    public function loadFromFile($__fileName)
+    public function loadFromFile($fileName)
     {
+        $__fileName = $fileName;
         if (! file_exists($__fileName)) {
             $error = Trigger::fromException(new AmakaScriptNotFoundException($__fileName));
             $error->addResolution('Check')
@@ -122,64 +108,8 @@ class AmakaScript implements \IteratorAggregate
         if (is_array($fileOrArray)) {
             return $this->loadFromArray($fileOrArray);
         }
+
         return $this->loadFromFile($fileOrArray);
-    }
-
-    /**
-     *
-     */
-    public function __invoke($element)
-    {
-        return $this->get($element);
-    }
-
-    /**
-     *
-     */
-    public function get($element)
-    {
-        return $this->invocablesList->get($element);
-    }
-
-    /**
-     *
-     */
-    public function add($element)
-    {
-        return $this->invocablesList->add($element);
-    }
-
-    /**
-     *
-     */
-    public function has($element)
-    {
-        return $this->invocablesList->contains($element);
-    }
-
-    public function getInvocables()
-    {
-        return $this->invocablesList;
-    }
-
-    public function getSymbolTable()
-    {
-        return $this->symbolsTable;
-    }
-
-    public function isEmpty()
-    {
-        return $this->invocablesList->isEmpty();
-    }
-
-    /**
-     * Return the list as the iterable object
-     *
-     * @return Officine\Amaka\InvocablesList
-     */
-    public function getIterator()
-    {
-        return $this->invocablesList;
     }
 
     public function __toString()

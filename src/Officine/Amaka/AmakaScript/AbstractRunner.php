@@ -8,6 +8,8 @@
  */
 namespace Officine\Amaka\AmakaScript;
 
+use Officine\Amaka\AmakaScript\Definition\DefinitionInterface;
+
 /**
  * The AbstractRunner
  *
@@ -15,15 +17,13 @@ namespace Officine\Amaka\AmakaScript;
 abstract class AbstractRunner
 {
     /**
-     * The AmakaScript DAG
-     *
-     * @var Officine\Amaka\AmakaScript\AmakaScript
+     * @var Officine\Amaka\AmakaScript\Definition\ArrayDefinition
      */
-    private $amakaScript;
+    private $scriptDefinition;
 
-    public function __construct(AmakaScript $amakaScript)
+    public function __construct(DefinitionInterface $scriptDefinition)
     {
-        $this->amakaScript = $amakaScript;
+        $this->scriptDefinition = $scriptDefinition;
     }
 
     /**
@@ -33,12 +33,9 @@ abstract class AbstractRunner
      */
     public function run($targetTask)
     {
-        $table = $this->amakaScript->getSymbolTable();
-        $invocables = $this->amakaScript->getInvocables();
-
-        if ($invocables->contains($targetTask)) {
-            $task = $invocables->get($targetTask);
-            foreach ($table->getSymbolsRequiredBy($targetTask) as $prerequisite) {
+        if ($this->scriptDefinition->hasInvocable($targetTask)) {
+            $task = $this->scriptDefinition->getInvocable($targetTask);
+            foreach ($this->scriptDefinition->getDependencies($targetTask) as $prerequisite) {
                 $this->run($prerequisite);
             }
             $task->invoke();

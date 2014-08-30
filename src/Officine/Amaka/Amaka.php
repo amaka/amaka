@@ -8,8 +8,10 @@
  */
 namespace Officine\Amaka;
 
+use Officine\Amaka\TaskSelectork;
 use Officine\Amaka\Context\CliContext;
 use Officine\Amaka\AmakaScript\AmakaScript;
+use Officine\Amaka\AmakaScript\Definition\ArrayDefinition;
 use Officine\Amaka\AmakaScript\CycleDetector;
 use Officine\Amaka\AmakaScript\SymbolTable;
 use Officine\Amaka\AmakaScript\DispatchTable;
@@ -96,6 +98,7 @@ class Amaka
     public function setAmakaScript(AmakaScript $script)
     {
         $this->amakaScript = $script;
+
         return $this;
     }
 
@@ -134,9 +137,10 @@ class Amaka
             $fail->trigger();
         }
 
-        $script = new AmakaScript();
-        $script->setSymbolsTable($this->symbolsTable)
-               ->setHelpersTable($this->helpersTable)
+        $definition = new ArrayDefinition($this->symbolsTable);
+
+        $script = new AmakaScript($definition);
+        $script->setHelpersTable($this->helpersTable)
                ->setOperationsTable($this->operationsTable)
                ->loadFromFile($scriptPath);
 
@@ -146,60 +150,22 @@ class Amaka
     }
 
     /**
-     * Use this method when you need to know and select the task name
-     * to pass to the run method.
-     *
-     * When $candidateTask is registered in the script this method
-     * will return exaclty $candidateTask, meaning you can run that
-     * task without further tests.  On the other hand when
-     * $candidateTask isn't registered, but a default task is present,
-     * the name of the default task is returned. When neither the
-     * $candidateTask nor the default one are registered in the script
-     * the method returns false.
-     *
-     * <code>
-     *   $amaka->loadAmakaScript(...);
-     *   $taskToRun = $amaka->taskSelector(':my-task');
-     *
-     *   $amaka->run($taskToRun);
-     * </code>
-     *
-     * @param string $candidateTask [optional]
-     * @return string|false
-     */
-    public function taskSelector($candidateTask = false)
-    {
-        $hasDefaultTask = $this->amakaScript->has($this->defaultTaskName);
-        $hasDesiredTask = $candidateTask && $this->amakaScript->has($candidateTask);
-
-        if ($candidateTask) {
-            if ($hasDesiredTask) {
-                return $candidateTask;
-            }
-        }
-
-        if ($hasDefaultTask) {
-            return $this->defaultTaskName;
-        }
-
-        return false;
-    }
-
-    /**
      * Run a task
      *
      * @param string $startTask The initial task we want to run
      */
     public function run($targetTask)
     {
-        $as = $this->amakaScript;
-        $startTask = $this->taskSelector($targetTask);
+        $definition = $this->amakaScript->getDefinition();
+
+        $selector   = new TaskSelector($definition);
+        $startTask  = $selector->select($targetTask);
 
         // The task selection logic returned false
         // no target task given by the user
         // and the script loaded was empty
         // Because one can't simply walk into Mordor.
-        if (! $startTask && (! $targetTask || $as->isEmpty())) {
+        if (! $startTask && (! $targetTask || $definition->isEmpty())) {
             Trigger::error('No tasks to run')
                 ->addResolution([
                     "Write a task called ':default' in your script:"
@@ -212,7 +178,7 @@ class Amaka
         // but it could not be found inside the loaded script.
         // Perhaps the guy has mistyped its name, or something
         // we don't know.
-        if ($targetTask && ! $as->get($targetTask)) {
+        if ($targetTask && ! $definition->getInvocable($targetTask)) {
             Trigger::error()
                 ->fromException(new UndefinedTaskException(
                     "Task '{$targetTask}' was not found in the amaka script."
@@ -220,8 +186,8 @@ class Amaka
                 ->trigger();
         }
 
-        $detector = new CycleDetector($as->getSymbolTable());
-        $runner   = new StandardRunner($as);
+        $detector = new CycleDetector($this->symbolsTable);
+        $runner   = new StandardRunner($definition);
 
         if (! $detector->isValid($startTask)) {
             Trigger::error(

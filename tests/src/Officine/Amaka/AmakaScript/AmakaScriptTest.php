@@ -12,61 +12,13 @@ use PHPUnit_Framework_TestCase as TestCase;
 
 class AmakaScriptTest extends TestCase
 {
-    /**
-     * As a developer writing an amaka script using the APIs
-     * I want to create a Buildfile object from an array definition
-     * So that I can manipulate it before execution
-     *
-     * With "Buildfile manipulation" I mean adding/removing tasks to the
-     * directly to it before processing it with a runner.
-     *
-     * @test
-     */
-    public function should_be_loadable_from_arrays()
+    const DEFINITION_CLASS = 'Officine\\Amaka\\AmakaScript\\Definition\\DefinitionInterface';
+
+    public function testInitialisationScriptsFromArrayDefinition()
     {
-        $script = new AmakaScript();
-        $script->loadFromArray(array());
-    }
+        $definition = $this->getMockBuilder(self::DEFINITION_CLASS)
+                           ->getMock();
 
-    /**
-     * @test
-     */
-    public function should_be_manipulable_before_execution()
-    {
-        $table = $this->getMock('Officine\Amaka\AmakaScript\SymbolTable', ['addSymbol']);
-
-        $script = new AmakaScript();
-        $script->setSymbolsTable($table);
-
-        $arrayDefinition = [
-            new \Officine\Amaka\Task\Task('hello world')
-        ];
-
-        $script->loadFromArray($arrayDefinition);
-        $script->add(new \Officine\Amaka\Task\Task('example'));
-
-        $this->assertTrue($script->has('hello world'));
-        $this->assertTrue($script->has('example'));
-    }
-
-    /**
-     * @test
-     */
-    public function should_alias_get_when_invoked_as_a_function()
-    {
-        $task = new \Officine\Amaka\Task\Task('example');
-        $script = new AmakaScript();
-
-        $script->add($task);
-        $this->assertSame($task, $script('example'));
-    }
-
-    /**
-     * @test
-     * @expectedException Officine\Amaka\ErrorReporting\Error
-     */
-    public function should_throw_when_creating_from_non_existing_file()
-    {
-        new AmakaScript(__DIR__ . '/_files/bogus/Amkfile');
+        $script = new AmakaScript($definition);
     }
 }
