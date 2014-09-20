@@ -1,18 +1,14 @@
 language: php
+
 php:
   - 5.4
   - 5.5
-
-branches:
-  only:
-    - develop
 
 env:
   - LIB_PATH=vendor/
 
 install: composer install
+
 script:
-  - vendor/bin/phpunit -c phpunit.xml --bootstrap tests/helper.php tests/
+  - vendor/bin/phpunit
   - vendor/bin/behat -f progress
-  - vendor/bin/behat -f progress -p acceptance
-after_script: bin/amaka :build
