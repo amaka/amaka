@@ -1,20 +1,19 @@
 <?php
 
 return [
-    $amaka->unitTest('test', function($driver) {
-        // $driver->testDirectory('tests')
-        // $driver->useConfigFile('phpunit.xml')
-        // $driver->useBootstrapFile('tests/helper.php')
-    }),
-    $amaka->task(':default')->dependsOn('test', ':spec'),
-    $amaka->task(':spec', function() {
+    /**
+     * The `:default' task is used called every time the Amaka
+     * executable is invoked without arguments.
+     */
+    $amaka->task(':default')->dependsOn('spec'),
+
+    $amaka->task('spec', function() {
         system("vendor/bin/behat -f progress");
-        system("vendor/bin/behat -p acceptance -f progress");
     }),
-    $amaka->task(':build', function() {
+
+    $amaka->task('build', function() {
         system("vendor/bin/phpunit --coverage-html build/coverage 2>&1");
         system("vendor/bin/behat --format=html > build/specs.html");
-        system("vendor/bin/behat -p acceptance --format=html > build/acceptance.html");
         system("vendor/bin/phpmd src/ html pmd.xml --reportfile build/mess.html");
     }),
 ];
