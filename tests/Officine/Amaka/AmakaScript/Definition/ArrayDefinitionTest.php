@@ -13,7 +13,7 @@ class ArrayDefinitionTest extends TestCase
         $this->definition = new ArrayDefinition($this->getMock('Officine\\Amaka\\AmakaScript\\SymbolTable'));
         $this->assertTrue($this->definition->isEmpty());
 
-        $builder = $this->getMockBuilder('Officine\\Amaka\\Invocable')
+        $builder = $this->getMockBuilder('Officine\\Amaka\\Contrib\\NamedInvocable')
                         ->setMethods(array('getName', 'invoke', 'hasInvoked'));
 
         $this->anInvocable = $builder->getMock();
@@ -178,7 +178,7 @@ class ArrayDefinitionTest extends TestCase
         foreach ($this->definition as $name => $element) {
             $this->assertInternalType('string', $name);
             $this->assertInstanceOf(
-                '\Officine\Amaka\Invocable',
+                'Officine\\Amaka\\Contrib\\Invocable',
                 $element
             );
             $this->assertTrue($this->definition->hasInvocable($element));

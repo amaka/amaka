@@ -2,7 +2,7 @@
 
 namespace Officine\Amaka\Operation;
 
-use Officine\Amaka\Invocable;
+use Officine\Amaka\Contrib\Invocable;
 use Officine\Amaka\Task\Task;
 use Officine\Amaka\Scope\TaskScope;
 use Officine\Amaka\AmakaScript\DispatchTable;

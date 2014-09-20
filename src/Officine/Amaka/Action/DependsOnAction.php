@@ -2,7 +2,7 @@
 
 namespace Officine\Amaka\Action;
 
-use Officine\Amaka\Invocable;
+use Officine\Amaka\Contrib\Invocable;
 use Officine\Amaka\AmakaScript\SymbolTable;
 
 class DependsOnAction extends AbstractAction

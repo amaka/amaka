@@ -2,7 +2,7 @@
 
 namespace Officine\Amaka\Task;
 
-use Officine\Amaka\Invocable;
+use Officine\Amaka\Contrib\Invocable;
 
 abstract class AbstractTask implements Invocable
 {

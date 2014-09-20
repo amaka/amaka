@@ -2,7 +2,7 @@
 
 namespace Officine\Amaka\Operation;
 
-use Officine\Amaka\Invocable;
+use Officine\Amaka\Contrib\Invocable;
 
 interface OperationInterface extends Invocable
 {

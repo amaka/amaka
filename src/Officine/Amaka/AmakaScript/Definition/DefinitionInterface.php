@@ -2,8 +2,6 @@
 
 namespace Officine\Amaka\AmakaScript\Definition;
 
-use Officine\Amaka\InvocableInterface;
-
 interface DefinitionInterface
 {
     public function getInvocable($invocable);

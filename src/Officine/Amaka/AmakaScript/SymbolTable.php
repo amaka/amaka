@@ -2,7 +2,7 @@
 
 namespace Officine\Amaka\AmakaScript;
 
-use Officine\Amaka\Invocable;
+use Officine\Amaka\Contrib\Invocable;
 
 class SymbolTable
 {

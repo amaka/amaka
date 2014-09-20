@@ -8,7 +8,7 @@
  */
 namespace Officine\Amaka\AmakaScript;
 
-use Officine\Amaka\Invocable;
+use Officine\Amaka\Contrib\Invocable;
 use Officine\Amaka\Scope\ScriptScope;
 use Officine\Amaka\ErrorReporting\Trigger;
 use Officine\Amaka\AmakaScript\DispatchTable;

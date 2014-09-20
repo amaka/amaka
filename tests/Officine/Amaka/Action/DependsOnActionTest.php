@@ -14,12 +14,12 @@ class DependsOnActionTest extends TestCase
 {
     public function testDependenciesAreStoredInsideASymbolTable()
     {
-        $invocable = $this->getMock('Officine\Amaka\Invocable', ['getName', 'invoke']);
+        $invocable = $this->getMock('Officine\\Amaka\\Contrib\\NamedInvocable', ['getName', 'invoke']);
         $invocable->expects($this->once())
                   ->method('getName')
                   ->will($this->returnValue('A'));
 
-        $table = $this->getMock('Officine\Amaka\AmakaScript\SymbolTable', ['addSymbol']);
+        $table = $this->getMock('Officine\\Amaka\\AmakaScript\\SymbolTable', ['addSymbol']);
         $table->expects($this->once())
               ->method('addSymbol')
               ->with($this->equalTo('A'), $this->equalTo(['B', 'C']));
@@ -30,7 +30,7 @@ class DependsOnActionTest extends TestCase
 
     public function testExpressionBuilderForwardsCallToInvocableInvokeMethod()
     {
-        $invocable = $this->getMock('Officine\Amaka\Invocable', ['getName', 'invoke']);
+        $invocable = $this->getMock('Officine\\Amaka\\Contrib\\NamedInvocable', ['getName', 'invoke']);
         $invocable->expects($this->once())
                   ->method('invoke');
 

@@ -2,7 +2,7 @@
 
 namespace Officine\Amaka\AmakaScript\Definition;
 
-use Officine\Amaka\Invocable;
+use Officine\Amaka\Contrib\Invocable;
 use Officine\Amaka\AmakaScript\SymbolTable;
 use Officine\Amaka\AmakaScript\Definition\ArrayDefinition;
 
@@ -16,7 +16,7 @@ class ArrayDefinition extends \ArrayObject implements DefinitionInterface
     }
 
     /**
-     * @param string|Officine\Amaka\Invocable
+     * @param string|Officine\Amaka\Contrib\Invocable
      */
     public function addInvocable($invocable)
     {
@@ -25,7 +25,7 @@ class ArrayDefinition extends \ArrayObject implements DefinitionInterface
     }
 
     /**
-     * @param string|Officine\Amaka\Invocable
+     * @param string|Officine\Amaka\Contrib\Invocable
      */
     public function getInvocable($invocable)
     {
@@ -36,7 +36,7 @@ class ArrayDefinition extends \ArrayObject implements DefinitionInterface
     }
 
     /**
-     * @param string|Officine\Amaka\Invocable
+     * @param string|Officine\Amaka\Contrib\Invocable
      */
     public function hasInvocable($invocable)
     {
@@ -77,7 +77,7 @@ class ArrayDefinition extends \ArrayObject implements DefinitionInterface
     }
 
     /**
-     * @param string|Officine\Amaka\Invocable
+     * @param string|Officine\Amaka\Contrib\Invocable
      */
     public function getDependencies($invocable)
     {

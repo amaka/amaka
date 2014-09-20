@@ -14,10 +14,10 @@ class TaskTest extends TestCase
     /**
      * @test
      */
-    public function tasks_should_be_Invocable()
+    public function tasksAreInvocables()
     {
         $this->assertInstanceOf(
-            'Officine\Amaka\Invocable',
+            'Officine\\Amaka\\Contrib\\Invocable',
             new Task(':foo')
         );
     }

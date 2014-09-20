@@ -2,8 +2,8 @@
 
 namespace Officine\Amaka\Action;
 
-use Officine\Amaka\Invocable;
 use Officine\StdLib\DynamicCall;
+use Officine\Amaka\Contrib\Invocable;
 
 abstract class AbstractAction implements Invocable
 {
