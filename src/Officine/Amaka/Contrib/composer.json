@@ -1,31 +1,29 @@
 {
-    "name": "trashofmasters/amaka",
+    "name": "trashofmasters/amaka-contracts",
     "license": "BSD-3-Clause",
-    "version": "v1.0.0a",
+    "version": "v0.1.0-beta",
     "homepage": "http://github.com/trashofmasters/amaka",
     "description": "Amaka the PHP Build Automator",
-    "keywords": [
-        "amaka", "build automation", "phing alternatives", "pake alternatives", "robo alternatives"
-    ],
+    "keywords": ["phing alternatives", "build automation", "amaka"],
     "authors": [
         {
-            "role": "Maintainer",
+            "role": "Developer",
             "name": "Andrea Turso",
             "email": "trashofmasters@gmail.com"
         }
     ],
     "require": {
         "php": ">=5.4",
+        "phpmd/phpmd" : "1.4.*",
+        "symfony/finder": "2.3",
         "symfony/process": "2.4",
+        "behat/behat": "2.5",
+        "phpunit/phpunit": "3.x",
         "zendframework/zend-console": "2.2",
         "zendframework/zend-config": "2.2",
         "zendframework/zend-stdlib": "2.2"
     },
     "require-dev": {
-        "behat/behat": "2.5",
-        "phpmd/phpmd" : "1.4.*",
-        "phpunit/phpunit": "3.x"
-
     },
     "repositories": [
         {
@@ -38,7 +36,5 @@
             "Officine": "src/"
         }
     },
-    "bin": [
-        "bin/amaka"
-    ]
+    "bin": ["bin/amaka"]
 }

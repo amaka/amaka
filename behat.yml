@@ -1,12 +1,7 @@
 default:
   paths:
-    features: specs
-    bootstrap: %behat.paths.features%/src
-
-acceptance:
-  paths:
     features: acceptance
-    bootstrap: %behat.paths.features%/src
+    bootstrap: %behat.paths.features%/bootstrap
   context:
     class: Officine\Amaka\Specs\EndToEndSpecContext
     parameters:

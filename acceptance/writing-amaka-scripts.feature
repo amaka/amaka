@@ -47,26 +47,6 @@ Feature: Writing Amaka Scripts
       When I run amaka without arguments
       Then the output on the screen should contain "ScriptScope"
 
-    Scenario: Using the Finder helper to find files
-      Given the amaka script "Amkfile" contains
-      """
-      <?php return [
-          $amaka->task(":default", function() use ($__dirName, $__fileName) {
-              $fileSet = $this->finder()
-                              ->files()
-                              ->ignoreUnreadableDirs()
-                              ->name('Amkfile')
-                              ->in($__dirName);
-
-              foreach ($fileSet as $file) {
-                  echo 'fileName: ' . $file->getFileName();
-              }
-          })
-      ];
-      """
-      When I run amaka without arguments
-      Then the output on the screen should match "@fileName:(.*)Amkfile@"
-
     Scenario: Using the $__fileName variable to get the name of the script file
       Given the amaka script "Amkfile" contains
       """

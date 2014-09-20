@@ -23,11 +23,6 @@ use Officine\Amaka\Operation\TaskOperation;
 use Officine\Amaka\Operation\UnitTestOperation;
 use Officine\Amaka\Operation\UnitTest\PHPUnitDriver;
 
-use Officine\Amaka\Plugin\Finder;
-use Officine\Amaka\Plugin\TaskArgs;
-use Officine\Amaka\Plugin\Directories;
-use Officine\Amaka\Plugin\TokenReplacement;
-
 use Officine\Amaka\ErrorReporting\Trigger;
 
 /**
@@ -64,17 +59,6 @@ class Amaka
         $this->operationsTable = new DispatchTable();
 
         $this->operationsTable->expose('task', new TaskOperation($this->helpersTable, $this->symbolsTable));
-        $this->operationsTable->expose('unitTest', new UnitTestOperation(new PHPUnitDriver()));
-
-        $this->helpersTable->expose('finder', function() {
-            return new Finder();
-        })->expose('directories', function() use ($baseDirectory) {
-            return new Directories($baseDirectory);
-        })->expose('taskArgs', function() use ($arguments) {
-            return new TaskArgs($arguments);
-        })->expose('tokenReplacement', function() {
-            return new TokenReplacement();
-        });
     }
 
     public function setContext(Context $context = null)
