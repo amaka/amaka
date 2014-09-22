@@ -2,7 +2,7 @@
 
 return [
     /**
-     * The `:default' task is used called every time the Amaka
+     * The `:default' task is called every time the Amaka
      * executable is invoked without arguments.
      */
     $amaka->task(':default')->dependsOn('spec'),
@@ -11,9 +11,21 @@ return [
         system("vendor/bin/behat -f progress");
     }),
 
+    /**
+     * The `test' task is used to run PHPUnit tests and generate code
+     * coverate reports.
+     */
     $amaka->task('build', function() {
         system("vendor/bin/phpunit --coverage-html build/coverage 2>&1");
         system("vendor/bin/behat --format=html > build/specs.html");
         system("vendor/bin/phpmd src/ html pmd.xml --reportfile build/mess.html");
+    }),
+
+    /**
+     * The `dist' task is used to mirror the content of the local
+     * repository to the amaka github account.
+     */
+    $amaka->task('dist', function () {
+        system("git push --mirror amaka");
     }),
 ];
